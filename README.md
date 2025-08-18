@@ -43,9 +43,9 @@ let b: Decimal = 2
 Postfix operators provide a convenient way to express common values.
 
 ```swift
-let _: Decimal = 150% // 1.5
-let _: Decimal = 500‰ // 0.5
-let _: Decimal = 250‱ // 0.025
+let _: Decimal = 150% // 1.50
+let _: Decimal = 500‰ // 0.500
+let _: Decimal = 250‱ // 0.0250
 ```
 
 All standard arithmetic operations are precise. The library handles scaling operands to a common power automatically.
