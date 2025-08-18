@@ -36,8 +36,8 @@ print("Value with 5 places: \(value[..5])") // "1.23450"
 print("Value with natural places: \(value[..])") // "1.2345"
 
 // Format as a percentage, permille, or basis points.
-print("As percentage (natural): \(value[%])") // "123.45%"
-print("As permillage (natural): \(value[‰])") // "1234.5‰"
+print("As a percentage (natural): \(value[%])") // "123.45%"
+print("As a permillage (natural): \(value[‰])") // "1234.5‰"
 print("As basis points (natural): \(value[‱])") // "12345‱"
 
 print("As a percentage (1 place): \(value[%1])") // "123.5%"
