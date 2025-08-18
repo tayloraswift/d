@@ -109,7 +109,7 @@ print("Forced sign: \(+value[..2])") // "+1.23"
 print("Negative sign: \((-value)[%0])") // "−123%"
 ```
 
-The formatting DSL also works for standard integer types. Use the `/` operator to group digits for improved readability.
+The formatting DSL can help you group digits when displaying standard integer types. Use the `/` operator to specify digit grouping.
 
 ```swift
 let integer: Int = 1234567890
@@ -140,6 +140,15 @@ The `??` prefix operator returns a standard string representation of the number,
 ```swift
 print(??zero[..] as Any) // nil
 print(??nonzero[..] as Any) // "0.55"
+```
+
+This is not always ergonomic on its own, but can be extremely powerful when coupled with an elision-friendly client API. For example, subscript-assignment patterns dovetail incredibly well with elision prefix operators.
+
+```swift
+// Note: HTML DSL not included with this library!
+let html: HTML = .init {
+    $0[.em] = +?quantity // elides the <em> tag if the value is zero
+}
 ```
 
 
