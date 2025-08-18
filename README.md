@@ -1,8 +1,6 @@
 [![Tests](https://github.com/ordo-one/d/actions/workflows/Tests.yml/badge.svg)](https://github.com/ordo-one/d/actions/workflows/Tests.yml)
 [![Documentation](https://github.com/ordo-one/d/actions/workflows/Documentation.yml/badge.svg)](https://github.com/ordo-one/d/actions/workflows/Documentation.yml)
 
-# d
-
 D is a pure Swift decimal arithmetic library and formatting DSL.
 
 [documentation](https://swiftinit.org/docs/d) ·
