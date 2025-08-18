@@ -1,4 +1,3 @@
-prefix operator *
 prefix operator /
 prefix operator ..
 prefix operator %

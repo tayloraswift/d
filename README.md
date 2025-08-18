@@ -89,8 +89,8 @@ print("Value with natural places: \(value[..])") // "1.2345"
 Use the special format sigils (`%`, `‰`, or `‱`) to format the number as a percentage, permille, or basis point value, optionally followed by a number to specify the desired precision.
 
 ```swift
-print("As percentage (natural): \(value[%])") // "123.45%"
-print("As permillage (natural): \(value[‰])") // "1234.5‰"
+print("As a percentage (natural): \(value[%])") // "123.45%"
+print("As a permillage (natural): \(value[‰])") // "1234.5‰"
 print("As basis points (natural): \(value[‱])") // "12345‱"
 
 print("As a percentage (1 place): \(value[%1])") // "123.5%"
