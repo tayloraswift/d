@@ -149,7 +149,7 @@ This is not always ergonomic on its own, but can be extremely powerful when coup
 ```swift
 // Note: HTML DSL not included with this library!
 let html: HTML = .init {
-    $0[.em] = +?quantity // elides the <em> tag if the value is zero
+    $0[.em] = +?quantity[..2] // elides the <em> tag if the value is zero
 }
 ```
 
