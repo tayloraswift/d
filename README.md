@@ -3,13 +3,15 @@
 
 D is a pure Swift decimal arithmetic library and formatting DSL.
 
+D is Foundation-free, and can also serve as a lightweight `Double` formatting engine for applications that don’t need decimal functionality, but still have strong reasons to avoid linking Foundation, such as WebAssembly applications.
+
 [documentation](https://swiftinit.org/docs/d) ·
 [license](LICENSE)
 
 
 ## Requirements
 
-The d library requires Swift 6.1 or later.
+The D library requires Swift 6.1 or later.
 
 
 | Platform | Status |
