@@ -202,8 +202,46 @@ extension Decimal: DecimalFormattable {
         )
     }
 }
+extension Decimal: CustomStringConvertible {
+    /// Format the decimal with as many places as necessary to represent the number exactly,
+    /// using ASCII characters only. The string contains no leading plus sign.
+    public var description: String {
+        self.format(
+            places: -Int.init(min(self.power, 0)),
+            signed: false,
+            suffix: "",
+            ascii: true
+        )
+    }
+}
+extension Decimal: LosslessStringConvertible {
+    @inlinable public init?(
+        _ string: consuming some StringProtocol & RangeReplaceableCollection
+    ) {
+        let power: Int64
+        if  let i: String.Index = string.firstIndex(of: ".") {
+            power = -Int64.init(
+                string.distance(from: string.index(after: i), to: string.endIndex)
+            )
+            string.remove(at: i)
+        } else {
+            power = 0
+        }
+
+        guard let units: Int64 = .init(string)
+        else {
+            return nil
+        }
+
+        self.init(units: units, power: power)
+    }
+}
 extension Decimal {
     public func format(places: Int, signed: Bool = false, suffix: String = "") -> String {
+        self.format(places: places, signed: signed, suffix: suffix, ascii: false)
+    }
+
+    private func format(places: Int, signed: Bool, suffix: String, ascii: Bool) -> String {
         /// We test this before we perform any rounding, to preserve the sign.
         let negative: Bool = self.units < 0
         let positive: Bool = self.units > 0
@@ -247,7 +285,11 @@ extension Decimal {
         let punctuation: Int
 
         if  negative {
-            punctuation = places > 0 ? 4 : 3
+            if ascii {
+                punctuation = places > 0 ? 2 : 1
+            } else {
+                punctuation = places > 0 ? 4 : 3
+            }
         } else if signed, positive {
             punctuation = places > 0 ? 2 : 1
         } else {
@@ -258,10 +300,15 @@ extension Decimal {
         return .init(unsafeUninitializedCapacity: characters + suffix.utf8.count) {
             var i: Int
             if negative {
-                $0[0] = 0xE2
-                $0[1] = 0x88
-                $0[2] = 0x92 // U+2212
-                i = 3
+                if ascii {
+                    $0[0] = 0x2D // U+002D
+                    i = 1
+                } else {
+                    $0[0] = 0xE2
+                    $0[1] = 0x88
+                    $0[2] = 0x92 // U+2212
+                    i = 3
+                }
             } else if signed, positive {
                 $0[0] = 0x2B // '+'
                 i = 1
