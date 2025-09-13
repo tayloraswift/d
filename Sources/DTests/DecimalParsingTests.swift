@@ -2,7 +2,7 @@ import D
 import Testing
 
 @Suite struct DecimalLosslessStringConvertibleTests {
-    @Test func Integer() {
+    @Test func Integral() {
         let a: String = "123"
         let d: Decimal? = .init(a)
         #expect(d?.units == 123)
@@ -10,7 +10,15 @@ import Testing
         #expect(d?.description == "123")
     }
 
-    @Test func NegativeInteger() {
+    @Test func IntegralZero() {
+        let a: String = "0"
+        let d: Decimal? = .init(a)
+        #expect(d?.units == 0)
+        #expect(d?.power == 0)
+        #expect(d?.description == "0")
+    }
+
+    @Test func IntegralNegative() {
         let a: String = "-123"
         let d: Decimal? = .init(a)
         #expect(d?.units == -123)
@@ -26,7 +34,15 @@ import Testing
         #expect(d?.description == "123.45")
     }
 
-    @Test func NegativeDecimal() {
+    @Test func FractionalZero() {
+        let a: String = "0.00"
+        let d: Decimal? = .init(a)
+        #expect(d?.units == 0)
+        #expect(d?.power == -2)
+        #expect(d?.description == "0.00")
+    }
+
+    @Test func FractionalNegative() {
         let a: String = "-123.45"
         let d: Decimal? = .init(a)
         #expect(d?.units == -12345)
@@ -42,7 +58,7 @@ import Testing
         #expect(d?.description == "0.45")
     }
 
-    @Test func NegativeLeadingDot() {
+    @Test func LeadingDotNegative() {
         let a: String = "-.45"
         let d: Decimal? = .init(a)
         #expect(d?.units == -45)
@@ -58,28 +74,12 @@ import Testing
         #expect(d?.description == "123")
     }
 
-    @Test func NegativeTrailingDot() {
+    @Test func TrailingDotNegative() {
         let a: String = "-123."
         let d: Decimal? = .init(a)
         #expect(d?.units == -123)
         #expect(d?.power == 0)
         #expect(d?.description == "-123")
-    }
-
-    @Test func Zero() {
-        let a: String = "0"
-        let d: Decimal? = .init(a)
-        #expect(d?.units == 0)
-        #expect(d?.power == 0)
-        #expect(d?.description == "0")
-    }
-
-    @Test func ZeroWithDecimal() {
-        let a: String = "0.00"
-        let d: Decimal? = .init(a)
-        #expect(d?.units == 0)
-        #expect(d?.power == -2)
-        #expect(d?.description == "0.00")
     }
 
     @Test func Invalid() {
