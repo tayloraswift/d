@@ -13,7 +13,8 @@
 }
 extension DecimalRepresentation {
     @inlinable public func map<T, E>(
-        _ transform: (Value) throws(E) -> T) throws(E) -> DecimalRepresentation<T, Format> {
+        _ transform: (Value) throws(E) -> T
+    ) throws(E) -> DecimalRepresentation<T, Format> {
         .init(value: try transform(self.value), places: self.places, signed: self.signed)
     }
 

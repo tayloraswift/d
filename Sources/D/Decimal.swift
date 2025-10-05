@@ -228,8 +228,7 @@ extension Decimal: LosslessStringConvertible {
             power = 0
         }
 
-        guard let units: Int64 = .init(string)
-        else {
+        guard let units: Int64 = .init(string) else {
             return nil
         }
 
