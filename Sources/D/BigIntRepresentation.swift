@@ -12,7 +12,8 @@
 }
 extension BigIntRepresentation {
     @inlinable public func map<T, E>(
-        _ transform: (Value) throws(E) -> T) throws(E) -> BigIntRepresentation<T> {
+        _ transform: (Value) throws(E) -> T
+    ) throws(E) -> BigIntRepresentation<T> {
         .init(value: try transform(self.value), stride: self.stride, signed: self.signed)
     }
 

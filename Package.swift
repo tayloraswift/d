@@ -9,6 +9,7 @@ let package: Package = .init(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.3"),
+        .package(url: "https://github.com/tayloraswift/dollup", from: "0.2.0"),
     ],
     targets: [
         .target(
@@ -28,9 +29,8 @@ let package: Package = .init(
 
 for target: Target in package.targets {
     {
-        $0 =
-            ($0 ?? []) + [
-                .enableUpcomingFeature("ExistentialAny")
-            ]
+        $0 = ($0 ?? []) + [
+            .enableUpcomingFeature("ExistentialAny")
+        ]
     }(&target.swiftSettings)
 }

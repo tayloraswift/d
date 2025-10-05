@@ -103,8 +103,7 @@ import Testing
             ("123.", "123"),
             ("123456789.123456789", "123456789.123456789")
         ]
-    )
-    func Roundtrip(_ value: String, canonical: String) {
+    ) func Roundtrip(_ value: String, canonical: String) {
         let d: Decimal? = .init(value)
         #expect(d?.description == canonical)
     }

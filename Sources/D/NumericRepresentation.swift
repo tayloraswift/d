@@ -8,6 +8,6 @@ extension NumericRepresentation {
         self.zero ? nil : +self
     }
     @inlinable public prefix static func ?? (self: Self) -> Self? {
-        self.zero ? nil :  self
+        self.zero ? nil : self
     }
 }
