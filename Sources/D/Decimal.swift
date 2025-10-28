@@ -141,6 +141,161 @@ extension Decimal: Comparable {
         }
     }
 }
+extension Decimal {
+    /// Creates a `Decimal` from a fraction, rounding to the nearest value
+    /// with **halves rounding away from zero**.
+    ///
+    /// - `1.235` (s=3) -> `1.24`
+    /// - `-1.235` (s=3) -> `-1.24`
+    @inlinable public static func roundedToNearest(
+        n: Int64,
+        d: Int64,
+        digits: Int
+    ) -> Self? {
+        .init(numerator: n, denominator: d, digits: digits, rounding: .nearest)
+    }
+
+    /// Creates a `Decimal` from a fractional representation, rounded to a
+    /// specified number of significant digits.
+    ///
+    /// - Parameters:
+    ///   - numerator: The numerator of the fraction.
+    ///   - denominator: The denominator of the fraction.
+    ///   - significantDigits: The number of significant digits to preserve. Must be
+    ///     greater than 0 and less than 19.
+    ///   - rounding: The rounding rule to apply.
+    /// - Returns: A `Decimal` instance, or `nil` if the denominator is zero or
+    ///   `significantDigits` is not in the valid range.
+    public init?(
+        numerator: Int64,
+        denominator: Int64,
+        digits: Int,
+        rounding: FractionalRounding
+    ) {
+        // 1. Validate inputs
+        // `significantDigits` must be 1-18. 19 is possible, but
+        // `9,223,372,036,854,775,807` can round to `10,000,000,000,000,000,000`,
+        // which overflows Int64.
+        guard denominator != 0, (1...18).contains(digits) else {
+            return nil
+        }
+
+        if numerator == 0 {
+            self = .zero
+            return
+        }
+
+        // 2. Handle signs and use UInt64 for math to safely handle Int64.min
+        let isNegative: Bool = (numerator < 0) != (denominator < 0)
+
+        // `UInt64(bitPattern:)` is the correct way to handle `Int64.min`
+        let n: UInt64 = numerator == .min ?
+            UInt64(bitPattern: Int64.max) + 1 : UInt64(abs(numerator))
+        let d: UInt64 = denominator == .min ?
+            UInt64(bitPattern: Int64.max) + 1 : UInt64(abs(denominator))
+
+        // 3. Find power of first significant digit
+        var q: UInt64 = n / d
+        var r: UInt64 = n % d
+
+        let powerOfFirstDigit: Int
+        var units: UInt64 // We will build `s + 1` digits here
+        var digitsGathered: Int
+
+        if q > 0 {
+            // Case A: Result is >= 1
+            var power: Int = 0
+            var tempQ: UInt64 = q
+            while tempQ >= 10 {
+                tempQ /= 10
+                power += 1
+            }
+            powerOfFirstDigit = power
+            units = q
+            digitsGathered = power + 1
+        } else {
+            // Case B: Result is < 1. Find first non-zero digit.
+            var power: Int = -1
+            // Use (UInt64.max / 10) as an overflow guard
+            let overflowGuard: UInt64 = UInt64.max / 10
+
+            while r < d && r <= overflowGuard {
+                r &*= 10
+                power &-= 1
+            }
+
+            q = r / d
+            r = r % d
+
+            guard q > 0 else {
+                // Result is too small (e.g., 1 / 10^50), effectively zero
+                self = .zero
+                return
+            }
+
+            powerOfFirstDigit = power
+            units = q
+            digitsGathered = 1
+        }
+
+        // 4. Gather remaining digits (we need `digits + 1` total)
+        let targetDigits: Int = digits + 1
+        let overflowGuard: UInt64 = UInt64.max / 10
+
+        while digitsGathered < targetDigits && units <= overflowGuard {
+            r &*= 10
+            units = (units &* 10) &+ (r / d)
+            r = r % d
+            digitsGathered &+= 1
+        }
+
+        // 5. Pad with zeros if exact value has fewer digits (e.g., 1/4, s=3 -> "250")
+        while digitsGathered < targetDigits && units <= overflowGuard {
+            units &*= 10
+            digitsGathered &+= 1
+        }
+
+        // 6. Perform rounding
+        let roundingDigit: UInt64 = units % 10
+        var truncatedUnits: UInt64 = units / 10 // This has `s` digits
+
+        let needsIncrement: Bool
+        switch rounding {
+        case .toZero:
+            needsIncrement = false
+        case .awayFromZero:
+            // Increment if any fractional part exists at all
+            needsIncrement = (roundingDigit > 0 || r > 0)
+        case .nearest:
+            // Increment if at or above midpoint (5 or greater)
+            needsIncrement = roundingDigit >= 5
+        }
+
+        if needsIncrement {
+            truncatedUnits &+= 1
+        }
+
+        // 7. Finalize `units` and `power`
+        var finalUnits: Int64
+        var finalPower: Int = powerOfFirstDigit - (digits - 1)
+
+        // 8. Check for rounding overflow (e.g., 9.99 (s=2) rounds to 10.0)
+        // We can do this by checking if `truncatedUnits` has `s + 1` digits.
+        let powerOfTen: Int64 = Self.power(Int64(digits))
+
+        if truncatedUnits == powerOfTen {
+            finalUnits = Int64(truncatedUnits / 10)
+            finalPower += 1
+        } else {
+            finalUnits = Int64(truncatedUnits)
+        }
+
+        self.init(
+            units: isNegative ? -finalUnits : finalUnits,
+            power: Int64(finalPower)
+        )
+    }
+}
 
 extension Decimal: ExpressibleByIntegerLiteral {
     @inlinable public init(integerLiteral: Int64) {
