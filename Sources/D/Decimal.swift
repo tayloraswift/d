@@ -215,16 +215,23 @@ extension Decimal {
             digitsGathered = power + 1
         } else {
             // Case B: Result is < 1. Find first non-zero digit.
+
+            // --- FIX START ---
+            // The power starts at -1 (for 0.X).
+            // We must find the first non-zero quotient.
             var power: Int = -1
-            // Use (UInt64.max / 10) as an overflow guard
             let overflowGuard: UInt64 = UInt64.max / 10
 
-            while r < d && r <= overflowGuard {
+            while r <= overflowGuard {
                 r &*= 10
+                q = r / d
+                if q > 0 {
+                    // Found the first digit
+                    break
+                }
+                // Digit was 0, so decrement power and continue
                 power &-= 1
             }
-
-            q = r / d
             r = r % d
 
             guard q > 0 else {
@@ -232,6 +239,7 @@ extension Decimal {
                 self = .zero
                 return
             }
+            // --- FIX END ---
 
             powerOfFirstDigit = power
             units = q

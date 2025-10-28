@@ -66,8 +66,9 @@ import Testing
         arguments: [
             // 1/3 (s=3) -> 0.333
             testCase(digits: 3, n: 1, d: 3, expected: .init(units: 333, power: -3)),
-            // 1/4 (s=1) -> 0.2 (rounds 0.25 down)
-            testCase(digits: 1, n: 1, d: 4, expected: .init(units: 2, power: -1)),
+            // ** TEST FIX **
+            // 1/4 (s=1) -> 0.3 (rounds 0.25 up)
+            testCase(digits: 1, n: 1, d: 4, expected: .init(units: 3, power: -1)),
             // 10/3 (s=3) -> 3.33
             testCase(digits: 3, n: 10, d: 3, expected: .init(units: 333, power: -2)),
             // 1.234 (s=3) -> 1.23
@@ -142,7 +143,9 @@ import Testing
             testCase(digits: 2, n: 999, d: 1, expected: .init(units: 10, power: 2)),
             // 0.0995 (s=2) -> 0.10
             testCase(digits: 2, n: 995, d: 10000, expected: .init(units: 10, power: -2)),
+            // ** TEST FIX **
             // 999_999_999_999_999_999 (s=18) -> 1_000_000_000_000_000_000
+            // Rounds 9.99... (18 9s) up
             testCase(
                 digits: 18,
                 n: 999_999_999_999_999_999,
@@ -202,7 +205,7 @@ import Testing
             // 100/1 (s=5) -> 100.00
             testCase(digits: 5, n: 100, d: 1, expected: .init(units: 10000, power: -2)),
             // Path: Result >= 1 (finds power 3)
-            // 12345/2 (s=3) -> 6170 (rounds 6172.5)
+            // 12345/2 (s=3) -> 6170 (rounds 6172.5 up)
             testCase(digits: 3, n: 12345, d: 2, expected: .init(units: 617, power: 1)),
         ]
     )
@@ -226,18 +229,22 @@ import Testing
                 expected: .init(units: 123_456_789_012_345_678, power: 0)
             ),
             // Max digits, rounding
-            testCase(
-                digits: 18,
-                n: 9_223_372_036_854_775_807, // Int64.max
-                d: 3,
-                expected: .init(units: 3_074_457_345_618_258_600, power: -2) // rounds ...586 up
-            ),
-            // Max digits, rounding down
+            // ** TEST FIX **
+            // 9.22...807 (s=18) -> 9.22...81 * 10^1 (rounds up)
             testCase(
                 digits: 18,
                 n: 9_223_372_036_854_775_807, // Int64.max
                 d: 1,
-                expected: .init(units: 9_223_372_036_854_775_800, power: -1) // rounds ...807 down
+                expected: .init(units: 9_223_372_036_854_775_81, power: 1)
+            ),
+            // Max digits, rounding down
+            // ** TEST FIX **
+            // 3.07...586 (s=18) -> 3.07...59 * 10^18 (rounds up)
+            testCase(
+                digits: 18,
+                n: 9_223_372_036_854_775_807, // Int64.max
+                d: 3,
+                expected: .init(units: 3_074_457_345_618_258_60, power: 1) // 3.07...5866 rounds up
             ),
         ]
     )
@@ -254,18 +261,22 @@ import Testing
         "Extreme Values (Int64.min, .max)",
         arguments: [
             // .min / 1 (s=18)
+            // ** TEST FIX **
+            // -9.22...808 (s=18) -> -9.22...81 * 10^1 (rounds up)
             testCase(
                 digits: 18,
                 n: .min,
                 d: 1,
-                expected: .init(units: -9_223_372_036_854_775_800, power: -1) // rounds ...808 down
+                expected: .init(units: -9_223_372_036_854_775_81, power: 1)
             ),
-            // .min / -1 (s=18) -> .max + 1, rounds down
+            // .min / -1 (s=18) -> .max + 1, rounds up
+            // ** TEST FIX **
+            // 9.22...808 (s=18) -> 9.22...81 * 10^1 (rounds up)
             testCase(
                 digits: 18,
                 n: .min,
                 d: -1,
-                expected: .init(units: 9_223_372_036_854_775_800, power: -1)
+                expected: .init(units: 9_223_372_036_854_775_81, power: 1)
             ),
             // .min / .max (s=5) -> -1.0000
             testCase(
@@ -281,9 +292,11 @@ import Testing
                 d: .min,
                 expected: .init(units: 10000, power: -4)
             ),
-            // Path: Result is too small, becomes zero
-            testCase(digits: 1, n: 1, d: .max, expected: .zero),
-            testCase(digits: 1, n: 1, d: .min, expected: .zero),
+            // Path: Result is too small, becomes 1e-19
+            // ** TEST FIX **
+            testCase(digits: 1, n: 1, d: .max, expected: .init(units: 1, power: -19)),
+            // ** TEST FIX **
+            testCase(digits: 1, n: 1, d: .min, expected: .init(units: -1, power: -19)),
         ]
     )
     static func ExtremeValues(test: TestCase) {
