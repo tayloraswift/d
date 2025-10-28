@@ -84,6 +84,63 @@ extension Decimal: Equatable {
         }
     }
 }
+extension Decimal: Comparable {
+    @inlinable public static func < (a: Self, b: Self) -> Bool {
+        let positive: Bool
+
+        switch (a.sign, b.sign) {
+        case (nil, nil):
+            // both are zero
+            return false
+
+        case (nil, let b?):
+            // if `a` is zero then `a < b` if and only if `b` is positive
+            return b
+
+        case (let a?, let b):
+            if case a? = b {
+                // both have the same sign
+                positive = a
+                break
+            }
+
+            // if `a` is positive then `b` must be zero or negative, so `a < b` is false.
+            // if `a` is negative then `b` must be zero or positive, so `a < b` is true.
+            return !a
+        }
+
+        // if powers are identical, just compare units
+        if  a.power == b.power {
+            return a.units < b.units
+        }
+
+        let offset: Int64 = max(a.power, b.power)
+        let power: (a: Int64, b: Int64) = (offset - a.power, offset - b.power)
+        if  power.a <= 18, power.b <= 18 {
+            let x: (Int64, UInt64) = a.units.multipliedFullWidth(by: Self.power(power.b))
+            let y: (Int64, UInt64) = b.units.multipliedFullWidth(by: Self.power(power.a))
+            return x < y
+        } else {
+            let a: Self = a.normalized()
+            let b: Self = b.normalized()
+
+            if  a.power == b.power {
+                return a.units < b.units
+            }
+
+            // if powers are still different, the magnitudes are different
+            // (we already know the signs are the same)
+            if  positive {
+                // a smaller (more negative) power means a smaller number
+                return a.power < b.power
+            } else {
+                // a larger (less negative) power means a smaller number
+                // e.g., -1e-2 (power -2) is LESS than -1e-5 (power -5)
+                return a.power > b.power
+            }
+        }
+    }
+}
 
 extension Decimal: ExpressibleByIntegerLiteral {
     @inlinable public init(integerLiteral: Int64) {
