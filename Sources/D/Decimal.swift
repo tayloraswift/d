@@ -170,6 +170,16 @@ extension Decimal {
     }
 }
 extension Decimal {
+    @inlinable public var fraction: (numerator: Int64, denominator: Int64?) {
+        if self.units == 0 {
+            return (0, nil)
+        } else if self.power >= 0 {
+            return (self.units * Self.power(self.power), nil)
+        } else {
+            return (self.units, Self.power(-self.power))
+        }
+    }
+
     @inlinable static func power(_ exponent: Int64) -> Int64 {
         switch exponent {
         case 00: 1
