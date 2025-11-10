@@ -10,7 +10,6 @@ import Testing
     )
 
     @Test(
-        "Invalid Inputs",
         arguments: [
             // Denominator is zero
             (digits: 1, n: 1, d: 0, expected: nil),
@@ -19,8 +18,7 @@ import Testing
             // Digits is too large
             (digits: 19, n: 1, d: 1, expected: nil),
         ] as [Case]
-    )
-    static func InvalidInputs(test: Case) {
+    ) static func InvalidInputs(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -30,14 +28,12 @@ import Testing
     }
 
     @Test(
-        "Zero Numerator",
         arguments: [
             (digits: 1, n: 0, d: 1, expected: .zero),
             (digits: 5, n: 0, d: -100, expected: .zero),
             (digits: 18, n: 0, d: .max, expected: .zero),
         ] as [Case]
-    )
-    static func ZeroNumerator(test: Case) {
+    ) static func ZeroNumerator(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -47,7 +43,6 @@ import Testing
     }
 
     @Test(
-        "Rounding Down (< 5)",
         arguments: [
             // 1/3 (s=3) -> 0.333
             (digits: 3, n: 1, d: 3, expected: .init(units: 333, power: -3)),
@@ -58,8 +53,7 @@ import Testing
             // 1.234 (s=3) -> 1.23
             (digits: 3, n: 1234, d: 1000, expected: .init(units: 123, power: -2)),
         ] as [Case]
-    )
-    static func RoundingDown(test: Case) {
+    ) static func RoundingDown(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -69,7 +63,6 @@ import Testing
     }
 
     @Test(
-        "Rounding Up (== 5, Midpoint)",
         arguments: [
             // 1/2 (s=1) -> 0.5
             (digits: 1, n: 1, d: 2, expected: .init(units: 5, power: -1)),
@@ -80,8 +73,7 @@ import Testing
             // 1.25 (s=2) -> 1.3
             (digits: 2, n: 125, d: 100, expected: .init(units: 13, power: -1)),
         ] as [Case]
-    )
-    static func RoundingUpMidpoint(test: Case) {
+    ) static func RoundingUpMidpoint(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -91,7 +83,6 @@ import Testing
     }
 
     @Test(
-        "Rounding Up (> 5)",
         arguments: [
             // 2/3 (s=3) -> 0.667
             (digits: 3, n: 2, d: 3, expected: .init(units: 667, power: -3)),
@@ -102,8 +93,7 @@ import Testing
             // 8/9 (s=1) -> 0.9 (rounds 0.88... up)
             (digits: 1, n: 8, d: 9, expected: .init(units: 9, power: -1)),
         ] as [Case]
-    )
-    static func RoundingUpAboveMidpoint(test: Case) {
+    ) static func RoundingUpAboveMidpoint(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -113,7 +103,6 @@ import Testing
     }
 
     @Test(
-        "Rounding Overflow",
         arguments: [
             // 9.95 (s=2) -> 10
             (digits: 2, n: 995, d: 100, expected: .init(units: 10, power: 0)),
@@ -138,8 +127,7 @@ import Testing
                 expected: .init(units: 100_000_000_000_000_000, power: 1)
             ),
         ] as [Case]
-    )
-    static func RoundingOverflow(test: Case) {
+    ) static func RoundingOverflow(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -149,7 +137,24 @@ import Testing
     }
 
     @Test(
-        "Sign Combinations",
+        arguments: [
+            (
+                digits: 4,
+                n: 100_000_000,
+                d: 1,
+                expected: .init(units: 100_000_000, power: 0)
+            ),
+        ] as [Case]
+    ) static func RoundingLarge(test: Case) {
+        let result = Decimal.roundedToNearest(
+            n: test.n,
+            d: test.d,
+            digits: test.digits,
+        )
+        #expect(result == test.expected)
+    }
+
+    @Test(
         arguments: [
             // -1/3 (s=3) -> -0.333
             (digits: 3, n: -1, d: 3, expected: .init(units: -333, power: -3)),
@@ -166,8 +171,7 @@ import Testing
             // -9.95 (s=2) -> -10 (overflow)
             (digits: 2, n: -995, d: 100, expected: .init(units: -10, power: 0)),
         ] as [Case]
-    )
-    static func SignCombinations(test: Case) {
+    ) static func SignCombinations(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -177,7 +181,6 @@ import Testing
     }
 
     @Test(
-        "Magnitude and Zero Padding",
         arguments: [
             // Path: Result < 1 (finds power -2)
             // 1/40 (s=3) -> 0.0250 (tests zero padding)
@@ -193,8 +196,7 @@ import Testing
             // 12345/2 (s=3) -> 6170 (rounds 6172.5 up)
             (digits: 3, n: 12345, d: 2, expected: .init(units: 617, power: 1)),
         ] as [Case]
-    )
-    static func MagnitudeAndZeroPadding(test: Case) {
+    ) static func MagnitudeAndZeroPadding(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -204,7 +206,6 @@ import Testing
     }
 
     @Test(
-        "High Precision and Max Digits",
         arguments: [
             // Max digits, no rounding
             (
@@ -230,8 +231,7 @@ import Testing
                 expected: .init(units: 3_074_457_345_618_258_60, power: 1)
             ),
         ] as [Case]
-    )
-    static func HighPrecisionAndMaxDigits(test: Case) {
+    ) static func HighPrecisionAndMaxDigits(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,
@@ -241,7 +241,6 @@ import Testing
     }
 
     @Test(
-        "Extreme Values (Int64.min, .max)",
         arguments: [
             // .min / 1 (s=18)
             // -9.22...808 (s=18) -> -9.22...81 * 10^1 (rounds up)
@@ -277,8 +276,7 @@ import Testing
             (digits: 1, n: 1, d: .max, expected: .init(units: 1, power: -19)),
             (digits: 1, n: 1, d: .min, expected: .init(units: -1, power: -19)),
         ] as [Case]
-    )
-    static func ExtremeValues(test: Case) {
+    ) static func ExtremeValues(test: Case) {
         let result = Decimal.roundedToNearest(
             n: test.n,
             d: test.d,

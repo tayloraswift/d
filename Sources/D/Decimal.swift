@@ -300,6 +300,22 @@ extension Decimal {
         let targetDigits: Int = digits + 1
         let overflowGuard: UInt64 = UInt64.max / 10
 
+        // Truncate if we already have more digits than needed (from Case A)
+        if digitsGathered > targetDigits {
+            let digitsToStrip: Int = digitsGathered - targetDigits
+            // This will not overflow Int64 since digitsToStrip is at most 18
+            let divisor: UInt64 = UInt64(Self.power(Int64(digitsToStrip)))
+            let (newQ, newR): (UInt64, UInt64) = units.quotientAndRemainder(dividingBy: divisor)
+
+            units = newQ
+            digitsGathered = targetDigits
+            // The new remainder is `newR`. The original remainder `r` was from
+            // `n % d`. If `newR` is non-zero, it means we have a remainder.
+            // If `newR` is zero, we rely on the original `r`.
+            // The `init` logic only needs to know if `remainder > 0`.
+            r = newR > 0 ? newR : r
+        }
+
         while digitsGathered < targetDigits && units <= overflowGuard {
             r &*= 10
             units = (units &* 10) &+ (r / d)
