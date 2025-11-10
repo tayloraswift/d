@@ -241,6 +241,24 @@ import Testing
     }
 
     @Test(
+        arguments: [
+            (
+                digits: 4,
+                n: 100_000_000,
+                d: 1,
+                expected: .init(units: 100_000_000, power: 0)
+            ),
+        ] as [Case]
+    ) static func Custom(test: Case) {
+        let result = Decimal.roundedToNearest(
+            n: test.n,
+            d: test.d,
+            digits: test.digits,
+        )
+        #expect(result == test.expected)
+    }
+
+    @Test(
         "Extreme Values (Int64.min, .max)",
         arguments: [
             // .min / 1 (s=18)
