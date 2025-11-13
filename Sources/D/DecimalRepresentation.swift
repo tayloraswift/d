@@ -41,3 +41,14 @@ extension DecimalRepresentation: CustomStringConvertible {
         )
     }
 }
+extension DecimalRepresentation {
+    /// A string representation without any suffix.
+    @inlinable public var bare: String {
+        self.value.format(
+            power: Format.power,
+            places: self.places.map(Int.init(_:)),
+            signed: self.signed,
+            suffix: "",
+        )
+    }
+}
