@@ -22,10 +22,9 @@ extension Double: DecimalFormattable {
     }
 
     public func format(power: Int, places: Int?, signed: Bool, suffix: String = "") -> String {
-        if  let places: Int,
-            let decimal: Decimal = .init(rounding: self, places: power + places) {
-            return decimal.format(power: power, places: places, signed: signed, suffix: suffix)
-        } else {
+        guard
+        let places: Int,
+        let decimal: Decimal = .init(rounding: self, places: power + places) else {
             let value: Double = self * .pow(10.0, Double(power))
             if  signed, value > 0 {
                 return "+\(value)\(suffix)"
@@ -34,6 +33,18 @@ extension Double: DecimalFormattable {
             } else {
                 return "0\(suffix)"
             }
+        }
+
+        if  signed, decimal.units == 0,
+            let sign: Bool = self.sign {
+            // special case to ensure sign is shown for zero when requested
+            return places > 0 ? """
+            \(sign ? "+" : "\u{2212}")0.\(String.init(repeating: "0", count: places))\(suffix)
+            """ : """
+            \(sign ? "+" : "\u{2212}")0\(suffix)
+            """
+        } else {
+            return decimal.format(power: power, places: places, signed: signed, suffix: suffix)
         }
     }
 }
