@@ -1,4 +1,4 @@
-name: tests
+name: android
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
         branches: [ master ]
 
 jobs:
-    linux:
+    android-tests:
         runs-on: ubuntu-24.04
         name: Ubuntu 24.04
         steps:
