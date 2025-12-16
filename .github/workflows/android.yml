@@ -1,0 +1,19 @@
+name: tests
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    linux:
+        runs-on: ubuntu-24.04
+        name: Ubuntu 24.04
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v3
+
+            -   name: Test on Android emulator
+                uses: skiptools/swift-android-action@v2
+
