@@ -9,7 +9,6 @@ on:
 jobs:
     android-tests:
         runs-on: ubuntu-24.04
-        name: Ubuntu 24.04
         steps:
             -   name: Checkout repository
                 uses: actions/checkout@v3
