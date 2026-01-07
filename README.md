@@ -17,6 +17,7 @@ The D library requires Swift 6.1 or later.
 | Platform | Status |
 | -------- | ------ |
 | 🐧 Linux | [![Tests](https://github.com/tayloraswift/d/actions/workflows/Tests.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/Tests.yml) |
+| 🤖 Android | [![Tests](https://github.com/tayloraswift/d/actions/workflows/android.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/android.yml) |
 | 🍏 Darwin | [![Tests](https://github.com/tayloraswift/d/actions/workflows/Tests.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/Tests.yml) |
 | 🍏 Darwin (iOS) | [![iOS](https://github.com/tayloraswift/d/actions/workflows/iOS.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/iOS.yml) |
 | 🍏 Darwin (tvOS) | [![tvOS](https://github.com/tayloraswift/d/actions/workflows/tvOS.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/tvOS.yml) |
