@@ -1,0 +1,21 @@
+name: android
+
+on:
+    push:
+        branches: [ master ]
+    pull_request:
+        branches: [ master ]
+
+jobs:
+    android-tests:
+        runs-on: ubuntu-24.04
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v3
+
+            -   name: Free disk space
+                run: sudo rm -rf /opt/microsoft /opt/google /opt/az /opt/ghc /usr/share/dotnet /usr/local/share/boost /opt/hostedtoolcache /usr/local/share/chromium
+
+            -   name: Test on Android emulator
+                uses: skiptools/swift-android-action@v2
+
