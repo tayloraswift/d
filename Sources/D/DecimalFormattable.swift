@@ -6,17 +6,17 @@ public protocol DecimalFormattable {
     /// The sign component is true if `next` is greater than `self`, false if less, and nil if
     /// they are equal.
     func delta(to next: Self) -> (sign: Bool?, magnitude: Self)
-    func format(power: Int, places: Int?, signed: Bool, suffix: String) -> String
+    func format(power: Int, stride: Int?, places: Int?, signed: Bool, suffix: String) -> String
 }
 extension DecimalFormattable {
     @inlinable public subscript<Format>(format: Format) -> DecimalRepresentation<Self, Format>
         where Format: DecimalFormat {
-        .init(value: self, places: format.places, signed: false)
+        .init(value: self, stride: format.stride, places: format.places, signed: false)
     }
 
-    @inlinable public subscript<Format>(
-        format: (Decimal.NaturalPrecision<Format>) -> ()
-    ) -> DecimalRepresentation<Self, Format> where Format: DecimalFormat {
-        .init(value: self, places: nil, signed: false)
+    @inlinable public subscript<Power>(
+        format: (Decimal.NaturalPrecision<Power>) -> ()
+    ) -> DecimalRepresentation<Self, Decimal.NaturalPrecision<Power>> where Power: DecimalPower {
+        .init(value: self, stride: nil, places: nil, signed: false)
     }
 }

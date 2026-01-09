@@ -2,7 +2,7 @@ import D
 import Testing
 
 @Suite struct DecimalSemanticsTests {
-    @Test func Initialization() {
+    @Test static func Initialization() {
         let a: Decimal = 123
         #expect(a.units == 123)
         #expect(a.power == 0)
@@ -12,7 +12,7 @@ import Testing
         #expect(b.power == 0)
     }
 
-    @Test func PostfixOperators() {
+    @Test static func PostfixOperators() {
         let aPercent: Decimal = 100%
         let aPermille: Decimal = 100‰
         let aPermyriad: Decimal = 100‱
@@ -26,7 +26,7 @@ import Testing
         #expect(aPermyriad.power == -4)
     }
 
-    @Test func UnaryOperators() {
+    @Test static func UnaryOperators() {
         let a: Decimal = .init(units: 123, power: 2)
 
         #expect((-a).units == -123)
@@ -36,7 +36,7 @@ import Testing
         #expect((+a).power == 2)
     }
 
-    @Test func Addition() {
+    @Test static func Addition() {
         let a: Decimal = .init(units: 1, power: 2)
         let b: Decimal = .init(units: 5, power: 0)
 
@@ -50,7 +50,7 @@ import Testing
         #expect(sum2.power == -1)
     }
 
-    @Test func Subtraction() {
+    @Test static func Subtraction() {
         let a: Decimal = .init(units: 1, power: 2)
         let b: Decimal = .init(units: 5, power: 0)
 
@@ -64,7 +64,7 @@ import Testing
         #expect(difference2.power == -1)
     }
 
-    @Test func Equality() {
+    @Test static func Equality() {
         #expect(Decimal.init(units: 1, power: 0) == Decimal.init(units: 1, power: 0))
         #expect(Decimal.init(units: 10, power: -1) == Decimal.init(units: 1, power: 0))
         #expect(Decimal.init(units: 1230, power: -2) == Decimal.init(units: 123, power: -1))
@@ -72,13 +72,13 @@ import Testing
         #expect(Decimal.init(units: -50, power: 1) == Decimal.init(units: -5, power: 2))
     }
 
-    @Test func EqualityWithZero() {
+    @Test static func EqualityWithZero() {
         #expect(Decimal.init(units: 0, power: 5) == Decimal.init(units: 0, power: -3))
         #expect(Decimal.init(units: 0, power: 0) == 0)
         #expect(Decimal.init(units: 1, power: 0) != 0)
     }
 
-    @Test func EqualityOverflow() {
+    @Test static func EqualityOverflow() {
         // This test checks for equality between two representations of the same large number.
         let a: Decimal = .init(units: .max, power: 18)
         let b: Decimal = .init(units: .max, power: 18)
@@ -98,12 +98,12 @@ import Testing
         #expect(f == g)
     }
 
-    @Test func Inequality() {
+    @Test static func Inequality() {
         #expect(Decimal.init(units: 1, power: 1) != Decimal.init(units: 1, power: 0))
         #expect(Decimal.init(units: 10, power: -1) != Decimal.init(units: 2, power: 0))
     }
 
-    @Test func Normalization() {
+    @Test static func Normalization() {
         var a: Decimal = .init(units: 1200, power: -1)
         a.normalize()
         #expect(a.units == 12)
@@ -115,7 +115,7 @@ import Testing
         #expect(b.power == 0)
     }
 
-    @Test func NormalizationArithmetic() {
+    @Test static func NormalizationArithmetic() {
         let a: Decimal = 150%
         let b: Decimal = 500‰
 
@@ -128,7 +128,7 @@ import Testing
         #expect(d.power == -3)
     }
 
-    @Test func ZeroAndNegativeNumbers() {
+    @Test static func ZeroAndNegativeNumbers() {
         let a: Decimal = 0
         let b: Decimal = .init(units: -10, power: 1)
 

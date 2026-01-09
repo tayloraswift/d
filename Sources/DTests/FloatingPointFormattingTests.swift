@@ -2,7 +2,7 @@ import D
 import Testing
 
 @Suite struct FloatingPointFormattingTests {
-    @Test func Rounding() {
+    @Test static func Rounding() {
         let a: Double = 0.14
         #expect("\(a[..1])" == "0.1")
         let b: Double = 0.15
@@ -10,7 +10,7 @@ import Testing
         let c: Double = 0.16
         #expect("\(c[..1])" == "0.2")
     }
-    @Test func Signed() {
+    @Test static func Signed() {
         let a: Double = 0.09
         #expect("\(+a[..1])" == "+0.1")
         let b: Double = 0.01
@@ -20,7 +20,7 @@ import Testing
         let d: Double = -0.09
         #expect("\(+d[..1])" == "−0.1")
     }
-    @Test func SignedIntegral() {
+    @Test static func SignedIntegral() {
         let a: Double = 0.9
         #expect("\(+a[..0])" == "+1")
         let b: Double = 0.1
