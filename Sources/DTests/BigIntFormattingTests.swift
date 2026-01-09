@@ -2,13 +2,13 @@ import D
 import Testing
 
 @Suite struct BigIntFormattingTests {
-    @Test func Zero() {
+    @Test static func Zero() {
         let a: Int64 = 0
         #expect("\(a[/0])" == "0")
         #expect("\(a[/3])" == "0")
     }
 
-    @Test func Single() {
+    @Test static func Single() {
         let a: Int64 = 1
         #expect("\(a[/0])" == "1")
         #expect("\(a[/1])" == "1")
@@ -20,7 +20,7 @@ import Testing
         #expect("\(b[/3])" == "−1")
     }
 
-    @Test func Double() {
+    @Test static func Double() {
         let a: Int64 = 12
         #expect("\(a[/0])" == "12")
         #expect("\(a[/1])" == "1,2")
@@ -34,7 +34,7 @@ import Testing
         #expect("\(b[/3])" == "−34")
     }
 
-    @Test func Triple() {
+    @Test static func Triple() {
         let a: Int64 = 123
         #expect("\(a[/0])" == "123")
         #expect("\(a[/1])" == "1,2,3")
@@ -48,7 +48,7 @@ import Testing
         #expect("\(b[/3])" == "−456")
     }
 
-    @Test func Quadruple() {
+    @Test static func Quadruple() {
         let a: Int64 = 1234
         #expect("\(a[/0])" == "1234")
         #expect("\(a[/1])" == "1,2,3,4")
@@ -62,7 +62,7 @@ import Testing
         #expect("\(b[/3])" == "−5,678")
     }
 
-    @Test func Large() {
+    @Test static func Large() {
         let a: Int64 = 123456789123
         #expect("\(a[/0])" == "123456789123")
         #expect("\(a[/1])" == "1,2,3,4,5,6,7,8,9,1,2,3")
@@ -76,7 +76,7 @@ import Testing
         #expect("\(b[/3])" == "−987,654,321,098")
     }
 
-    @Test func LargeWithRemainder() {
+    @Test static func LargeWithRemainder() {
         let a: Int64 = 1234567890
         #expect("\(a[/0])" == "1234567890")
         #expect("\(a[/1])" == "1,2,3,4,5,6,7,8,9,0")
@@ -90,7 +90,7 @@ import Testing
         #expect("\(b[/3])" == "−9,876,543,210")
     }
 
-    @Test func LargeWithLeadingPlus() {
+    @Test static func LargeWithLeadingPlus() {
         let a: Int64 = 1234567890
         #expect("\(+a[/0])" == "+1234567890")
         #expect("\(+a[/1])" == "+1,2,3,4,5,6,7,8,9,0")
