@@ -448,12 +448,14 @@ extension Decimal: DecimalFormattable {
 
     @inlinable public func format(
         power: Int,
+        stride: Int? = nil,
         places: Int? = nil,
         signed: Bool = false,
         suffix: String = ""
     ) -> String {
         let shifted: Self = .init(units: self.units, power: self.power + Int64.init(power))
         return shifted.format(
+            stride: stride,
             places: places ?? -Int.init(min(shifted.power, 0)),
             signed: signed,
             suffix: suffix
@@ -465,6 +467,7 @@ extension Decimal: CustomStringConvertible {
     /// using ASCII characters only. The string contains no leading plus sign.
     public var description: String {
         self.format(
+            stride: nil,
             places: -Int.init(min(self.power, 0)),
             signed: false,
             suffix: "",
@@ -494,11 +497,11 @@ extension Decimal: LosslessStringConvertible {
     }
 }
 extension Decimal {
-    public func format(places: Int, signed: Bool = false, suffix: String = "") -> String {
-        self.format(places: places, signed: signed, suffix: suffix, ascii: false)
+    public func format(stride: Int? = nil, places: Int, signed: Bool = false, suffix: String = "") -> String {
+        self.format(stride: stride, places: places, signed: signed, suffix: suffix, ascii: false)
     }
 
-    private func format(places: Int, signed: Bool, suffix: String, ascii: Bool) -> String {
+    private func format(stride: Int?, places: Int, signed: Bool, suffix: String, ascii: Bool) -> String {
         /// We test this before we perform any rounding, to preserve the sign.
         let negative: Bool = self.units < 0
         let positive: Bool = self.units > 0
@@ -537,6 +540,25 @@ extension Decimal {
             zeroes.after = self.units == 0 ? places : places + Int.init(self.power)
         }
 
+        let digitsInFirstGroup: Int
+        let digitsToGroup: Int
+        let commas: Int
+
+        if  zeroes.before > 0 {
+            digitsToGroup = 1 // The leading '0' in "0.xxxxx"
+        } else {
+            digitsToGroup = digits + zeroes.after - places
+        }
+
+        if  let stride: Int = stride, 1 ..< digitsToGroup ~= stride {
+            let r: Int
+            (commas, r) = (digitsToGroup - 1).quotientAndRemainder(dividingBy: stride)
+            digitsInFirstGroup = r + 1
+        } else {
+            commas = 0
+            digitsInFirstGroup = digitsToGroup
+        }
+
         /// Add 1 for the decimal point. The unicode minus sign (U+2212) takes three bytes
         /// to encode in UTF-8.
         let punctuation: Int
@@ -553,7 +575,7 @@ extension Decimal {
             punctuation = places > 0 ? 1 : 0
         }
 
-        let characters: Int = punctuation + zeroes.before + digits + zeroes.after
+        let characters: Int = punctuation + zeroes.before + digits + zeroes.after + commas
         return .init(unsafeUninitializedCapacity: characters + suffix.utf8.count) {
             var i: Int
             if negative {
@@ -572,6 +594,10 @@ extension Decimal {
             } else {
                 i = 0
             }
+
+            var digitsGrouped: Int = 0
+            var digitsInCurrentGroup: Int = digitsInFirstGroup
+
             // We would only insert zeroes before, if if the decimal starts with `0.`
             if zeroes.before > 0 {
                 $0[i] = 0x30 ; i += 1 // '0'
@@ -586,24 +612,47 @@ extension Decimal {
                     $0[i] = 0x30 ; i += 1
                 }
             } else if places > zeroes.after {
-                // We know that the decimal point appears within the digits.
-                let period: Int = characters - places - 1
                 for utf8: UInt8 in string.utf8 {
-                    if period == i {
+                    $0[i] = utf8 ; i += 1
+                    digitsGrouped += 1
+
+                    if  digitsGrouped < digitsToGroup {
+                        digitsInCurrentGroup -= 1
+                        if  let stride: Int, digitsInCurrentGroup == 0 {
+                            $0[i] = 0x2C ; i += 1 // ','
+                            digitsInCurrentGroup = stride
+                        }
+                    } else if places > 0,
+                        digitsGrouped == digitsToGroup {
                         $0[i] = 0x2E ; i += 1 // '.'
                     }
-
-                    $0[i] = utf8 ; i += 1
                 }
                 for _: Int in 0 ..< zeroes.after {
                     $0[i] = 0x30 ; i += 1
                 }
             } else {
+                // Decimal point appears at the end or beyond the digits.
                 for utf8: UInt8 in string.utf8 {
                     $0[i] = utf8 ; i += 1
+                    digitsGrouped += 1
+                    if  digitsGrouped < digitsToGroup {
+                        digitsInCurrentGroup -= 1
+                        if  let stride: Int, digitsInCurrentGroup == 0 {
+                            $0[i] = 0x2C ; i += 1 // ','
+                            digitsInCurrentGroup = stride
+                        }
+                    }
                 }
                 for _: Int in 0 ..< zeroes.after - places {
                     $0[i] = 0x30 ; i += 1
+                    digitsGrouped += 1
+                    if  digitsGrouped < digitsToGroup {
+                        digitsInCurrentGroup -= 1
+                        if  let stride: Int, digitsInCurrentGroup == 0 {
+                            $0[i] = 0x2C ; i += 1 // ','
+                            digitsInCurrentGroup = stride
+                        }
+                    }
                 }
                 if places > 0 {
                     $0[i] = 0x2E ; i += 1 // '.'

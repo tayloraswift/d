@@ -21,7 +21,7 @@ extension Double: DecimalFormattable {
         }
     }
 
-    public func format(power: Int, places: Int?, signed: Bool, suffix: String = "") -> String {
+    public func format(power: Int, stride: Int?, places: Int?, signed: Bool, suffix: String = "") -> String {
         guard
         let places: Int,
         let decimal: Decimal = .init(rounding: self, places: power + places) else {
@@ -44,7 +44,7 @@ extension Double: DecimalFormattable {
             \(sign ? "+" : "\u{2212}")0\(suffix)
             """
         } else {
-            return decimal.format(power: power, places: places, signed: signed, suffix: suffix)
+            return decimal.format(power: power, stride: stride, places: places, signed: signed, suffix: suffix)
         }
     }
 }
