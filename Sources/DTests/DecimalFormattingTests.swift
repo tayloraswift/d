@@ -2,7 +2,7 @@ import D
 import Testing
 
 @Suite struct DecimalFormattingTests {
-    @Test func Integral() {
+    @Test static func Integral() {
         let a: Decimal = 123
         #expect(a.format(places: 0) == "123")
         #expect(a.format(places: 2) == "123.00")
@@ -16,7 +16,7 @@ import Testing
         #expect(b.format(places: 20) == "−456.00000000000000000000")
     }
 
-    @Test func Fractional() {
+    @Test static func Fractional() {
         let a: Decimal = 12345%
         #expect(a.format(places: 0) == "123")
         #expect(a.format(places: 2) == "123.45")
@@ -35,7 +35,7 @@ import Testing
         #expect(d.format(places: 2) == "−98.70")
     }
 
-    @Test func Rounding() {
+    @Test static func Rounding() {
         // Round up
         let a: Decimal = 12345‰
         #expect(a.format(places: 1) == "12.3")
@@ -62,7 +62,7 @@ import Testing
         #expect(e.format(places: 1) == "−12.4")
     }
 
-    @Test func RoundingE19() {
+    @Test static func RoundingE19() {
         // Round half up, away from zero (positive)
         let a: Decimal = .init(units: 5_000_000_000_000_000_000, power: -19)
         #expect(a.format(places: 0) == "1")
@@ -80,7 +80,7 @@ import Testing
         #expect(d.format(places: 0) == "−0")
     }
 
-    @Test func RoundingEMin() {
+    @Test static func RoundingEMin() {
         let a: Decimal = .init(units: 99999, power: -24)
         #expect(a.format(places: 45) == "0.000000000000000000099999000000000000000000000")
         #expect(a.format(places: 25) == "0.0000000000000000000999990")
@@ -116,7 +116,7 @@ import Testing
         #expect(d.format(places: 40) == "−0.0000000000000000000000000000000000000000")
     }
 
-    @Test func SmallPowers() {
+    @Test static func SmallPowers() {
         let a: Decimal = .init(units: 123, power: -20)
         #expect(a.format(places: 0) == "0")
         #expect(a.format(places: 2) == "0.00")
@@ -130,7 +130,7 @@ import Testing
         #expect(b.format(places: 40) == "−0.0000000000000000004500000000000000000000")
     }
 
-    @Test func LargePowers() {
+    @Test static func LargePowers() {
         let a: Decimal = .init(units: 123, power: 2)
         #expect(a.format(places: 0) == "12300")
         #expect(a.format(places: 2) == "12300.00")
@@ -147,7 +147,7 @@ import Testing
         #expect(c.format(places: 20) == "−4500000000000000000000.00000000000000000000")
     }
 
-    @Test func Zero() {
+    @Test static func Zero() {
         let a: Decimal = 0
         #expect(a.format(places: 0) == "0")
         #expect(a.format(places: 4) == "0.0000")
@@ -167,7 +167,7 @@ import Testing
         #expect(c.format(places: 40) == "0.0000000000000000000000000000000000000000")
     }
 
-    @Test func WithPlusSign() {
+    @Test static func WithPlusSign() {
         let a: Decimal = 123
         #expect(a.format(places: 0, signed: true) == "+123")
 
@@ -190,7 +190,7 @@ import Testing
         #expect(e.format(places: 20, signed: true) == "+1.23450000000000000000")
     }
 
-    @Test func DSL() {
+    @Test static func DSL() {
         let a: Decimal = 12345‱
         #expect("\(a[..])" == "1.2345")
         #expect("\(+a[..])" == "+1.2345")

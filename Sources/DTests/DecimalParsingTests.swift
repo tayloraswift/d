@@ -2,7 +2,7 @@ import D
 import Testing
 
 @Suite struct DecimalLosslessStringConvertibleTests {
-    @Test func Integral() {
+    @Test static func Integral() {
         let a: String = "123"
         let d: Decimal? = .init(a)
         #expect(d?.units == 123)
@@ -10,7 +10,7 @@ import Testing
         #expect(d?.description == "123")
     }
 
-    @Test func IntegralZero() {
+    @Test static func IntegralZero() {
         let a: String = "0"
         let d: Decimal? = .init(a)
         #expect(d?.units == 0)
@@ -18,7 +18,7 @@ import Testing
         #expect(d?.description == "0")
     }
 
-    @Test func IntegralNegative() {
+    @Test static func IntegralNegative() {
         let a: String = "-123"
         let d: Decimal? = .init(a)
         #expect(d?.units == -123)
@@ -26,7 +26,7 @@ import Testing
         #expect(d?.description == "-123")
     }
 
-    @Test func Fractional() {
+    @Test static func Fractional() {
         let a: String = "123.45"
         let d: Decimal? = .init(a)
         #expect(d?.units == 12345)
@@ -34,7 +34,7 @@ import Testing
         #expect(d?.description == "123.45")
     }
 
-    @Test func FractionalZero() {
+    @Test static func FractionalZero() {
         let a: String = "0.00"
         let d: Decimal? = .init(a)
         #expect(d?.units == 0)
@@ -42,7 +42,7 @@ import Testing
         #expect(d?.description == "0.00")
     }
 
-    @Test func FractionalNegative() {
+    @Test static func FractionalNegative() {
         let a: String = "-123.45"
         let d: Decimal? = .init(a)
         #expect(d?.units == -12345)
@@ -50,7 +50,7 @@ import Testing
         #expect(d?.description == "-123.45")
     }
 
-    @Test func LeadingDot() {
+    @Test static func LeadingDot() {
         let a: String = ".45"
         let d: Decimal? = .init(a)
         #expect(d?.units == 45)
@@ -58,7 +58,7 @@ import Testing
         #expect(d?.description == "0.45")
     }
 
-    @Test func LeadingDotNegative() {
+    @Test static func LeadingDotNegative() {
         let a: String = "-.45"
         let d: Decimal? = .init(a)
         #expect(d?.units == -45)
@@ -66,7 +66,7 @@ import Testing
         #expect(d?.description == "-0.45")
     }
 
-    @Test func TrailingDot() {
+    @Test static func TrailingDot() {
         let a: String = "123."
         let d: Decimal? = .init(a)
         #expect(d?.units == 123)
@@ -74,7 +74,7 @@ import Testing
         #expect(d?.description == "123")
     }
 
-    @Test func TrailingDotNegative() {
+    @Test static func TrailingDotNegative() {
         let a: String = "-123."
         let d: Decimal? = .init(a)
         #expect(d?.units == -123)
@@ -82,7 +82,7 @@ import Testing
         #expect(d?.description == "-123")
     }
 
-    @Test func Invalid() {
+    @Test static func Invalid() {
         #expect(Decimal.init("abc") == nil)
         #expect(Decimal.init("1.2.3") == nil)
         #expect(Decimal.init("") == nil)
