@@ -520,6 +520,32 @@ extension Decimal: LosslessStringConvertible {
     }
 }
 extension Decimal {
+    @inlinable func format<Notation>(
+        notation _: Notation.Type,
+        signed: Bool,
+    ) -> String where Notation: DynamicMagnitudeNotation {
+        if  self.units == 0 {
+            return "0"
+        }
+
+        let magnitude: Double = .log10(abs(Double.init(self.units))) + Double.init(self.power)
+        switch Notation[magnitude: magnitude] {
+        case nil:
+            return self.format(power: 0, signed: signed)
+
+        case (let exponent, nil)?:
+            guard exponent > 0 else {
+                let power: Int = -exponent
+                return self.format(power: power, signed: signed, suffix: "e\u{2212}\(power)")
+            }
+
+            return self.format(power: -exponent, signed: signed, suffix: "e\(exponent)")
+
+        case (let exponent, let suffix?)?:
+            return self.format(power: -exponent, signed: signed, suffix: suffix)
+        }
+    }
+
     public func format(stride: Int? = nil, places: Int, signed: Bool = false, suffix: String = "") -> String {
         self.format(stride: stride, places: places, signed: signed, suffix: suffix, ascii: false)
     }

@@ -1,4 +1,4 @@
-extension Decimal.NaturalPrecision {
+extension Decimal.Grouped.Natural {
     /// A syntactical intermediate for constructing a ``Decimal.NaturalPrecision`` format,
     /// necessary to work around precedence issues with the prefix `/` operator.
     @frozen public struct Postfix_ {
@@ -8,8 +8,8 @@ extension Decimal.NaturalPrecision {
         }
     }
 }
-extension Decimal.NaturalPrecision.Postfix_ {
-    @inlinable public static prefix func / (self: Self) -> Decimal.NaturalPrecision<Power> {
+extension Decimal.Grouped.Natural.Postfix_ {
+    @inlinable public static prefix func / (self: Self) -> Decimal.Grouped<Power>.Natural {
         .init(stride: self.stride)
     }
 }
