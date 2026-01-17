@@ -1,15 +1,13 @@
 @frozen public struct DecimalRepresentation<Value, Format>
     where Value: DecimalFormattable, Format: DecimalFormat {
     public let value: Value
-    @usableFromInline let stride: UInt8?
-    @usableFromInline let places: UInt8?
+    @usableFromInline let format: Format
     /// Whether to format the number with a leading plus sign, if positive.
     @usableFromInline var signed: Bool
 
-    @inlinable init(value: Value, stride: UInt8?, places: UInt8?, signed: Bool) {
+    @inlinable init(value: Value, format: Format, signed: Bool) {
         self.value = value
-        self.stride = stride
-        self.places = places
+        self.format = format
         self.signed = signed
     }
 }
@@ -17,11 +15,11 @@ extension DecimalRepresentation {
     @inlinable public func map<T, E>(
         _ transform: (Value) throws(E) -> T
     ) throws(E) -> DecimalRepresentation<T, Format> {
-        .init(value: try transform(self.value), stride: self.stride, places: self.places, signed: self.signed)
+        .init(value: try transform(self.value), format: self.format, signed: self.signed)
     }
 
     @inlinable public func with(value: Value) -> Self {
-        .init(value: value, stride: self.stride, places: self.places, signed: self.signed)
+        .init(value: value, format: self.format, signed: self.signed)
     }
 }
 extension DecimalRepresentation: NumericRepresentation {
@@ -37,8 +35,8 @@ extension DecimalRepresentation: CustomStringConvertible {
     @inlinable public var description: String {
         self.value.format(
             power: Format.Power.power,
-            stride: self.stride.map(Int.init(_:)),
-            places: self.places.map(Int.init(_:)),
+            stride: self.format.stride.map(Int.init(_:)),
+            places: self.format.places.map(Int.init(_:)),
             signed: self.signed,
             suffix: Format.Power.sigil,
         )
@@ -49,10 +47,39 @@ extension DecimalRepresentation {
     @inlinable public var bare: String {
         self.value.format(
             power: Format.Power.power,
-            stride: self.stride.map(Int.init(_:)),
-            places: self.places.map(Int.init(_:)),
+            stride: self.format.stride.map(Int.init(_:)),
+            places: self.format.places.map(Int.init(_:)),
             signed: self.signed,
             suffix: "",
         )
+    }
+}
+extension DecimalRepresentation<Double, Decimal.Ungrouped<Units>> {
+    @inlinable public subscript<Notation>(
+        notation: Notation
+    ) -> String where Notation: DynamicMagnitudeNotation {
+        self.value.format(
+            notation: Notation.self,
+            signed: self.signed,
+            digits: Int.init(self.format._places)
+        )
+    }
+}
+extension DecimalRepresentation<Decimal, Decimal.Ungrouped<Units>.Natural> {
+    @inlinable public subscript<Notation>(
+        notation: Notation
+    ) -> String where Notation: DynamicMagnitudeNotation {
+        self.value.format(
+            notation: Notation.self,
+            signed: self.signed,
+        )
+    }
+}
+extension DecimalRepresentation {
+    @available(*, unavailable, message: "notation is not supported for this format")
+    @inlinable public subscript<Notation>(
+        notation: Notation
+    ) -> String where Notation: DynamicMagnitudeNotation {
+        fatalError()
     }
 }
