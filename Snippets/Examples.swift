@@ -89,3 +89,8 @@ print("125% as a Double is: \(double[..3])") // "1.250"
 // Beware that “natural” precision for a ``Double`` may include many decimal places.
 let inexact: Double = 1 / 3
 print("1/3 as a Double is: \(+inexact[..])") // "+0.3333333333333333"
+
+// Use financial notation for a Double
+let quantity: (small: Double, large: Double) = (0.000012345, 1_234_567)
+print("Quantity in financial notation: \(quantity.small[..3][.financial])") // "123e\u{2212}6"
+print("Quantity in financial notation: \(quantity.large[..3][.financial])") // "1.23\u{202F}M"
