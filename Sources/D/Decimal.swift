@@ -11,11 +11,11 @@ import RealModule
 }
 
 extension Decimal {
-    /// Creates a `Decimal` instance from a `Double`, rounding to the specified
+    /// Creates a `Decimal` instance from a ``Double``, rounding to the specified
     /// number of decimal places.
     ///
     /// - Parameters:
-    ///   - value: The `Double` value to convert.
+    ///   - value: The ``Double`` value to convert.
     ///   - places: The number of decimal places to preserve. The value will be
     ///     rounded to this number of places.
     @inlinable public init?(rounding value: Double, places: Int) {
@@ -27,6 +27,29 @@ extension Decimal {
         } else {
             return nil
         }
+    }
+
+    /// Creates a `Decimal` from a ``Double``, rounding to the specified
+    /// number of significant digits.
+    @inlinable public init?(rounding value: Double, digits: Int) {
+        // 1. Handle non-finite or zero values immediately
+        guard value.isFinite else { return nil }
+        if  value == 0 {
+            self = .zero
+            return
+        }
+
+        // 2. Calculate the order of magnitude (exponent)
+        // e.g., for 123.45, log10 is ~2.09, floor is 2.
+        let exponent: Int = .init(Double.log10(abs(value)).rounded(.down))
+
+        // 3. Calculate required decimal places
+        // digits = 3, exponent = 2 (100s place)
+        // places = 3 - 1 - 2 = 0 decimal places -> rounds to 123
+        let places: Int = digits - 1 - exponent
+
+        // 4. Delegate to the existing initializer
+        self.init(rounding: value, places: places)
     }
 }
 
