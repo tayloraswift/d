@@ -32,24 +32,32 @@ extension Decimal {
     /// Creates a `Decimal` from a ``Double``, rounding to the specified
     /// number of significant digits.
     @inlinable public init?(rounding value: Double, digits: Int) {
-        // 1. Handle non-finite or zero values immediately
-        guard value.isFinite else { return nil }
-        if  value == 0 {
+        guard value != 0 else {
             self = .zero
             return
         }
+        guard value.isFinite else {
+            return nil
+        }
 
-        // 2. Calculate the order of magnitude (exponent)
+        // calculate the order of magnitude (exponent)
         // e.g., for 123.45, log10 is ~2.09, floor is 2.
         let exponent: Int = .init(Double.log10(abs(value)).rounded(.down))
 
-        // 3. Calculate required decimal places
+        // calculate required decimal places
         // digits = 3, exponent = 2 (100s place)
         // places = 3 - 1 - 2 = 0 decimal places -> rounds to 123
-        let places: Int = digits - 1 - exponent
+        self.init(rounding: value, places: digits - 1 - exponent)
 
-        // 4. Delegate to the existing initializer
-        self.init(rounding: value, places: places)
+        //  check for `Int64.min` to avoid a crash in ``abs``
+        if  1 ... 18 ~= digits,
+            self.units == .min || abs(self.units) >= Self.power(Int64.init(digits)) {
+            // if the rounding caused the value to increase to the next order of magnitude
+            // (e.g. 99 -> 100), we need to normalize one step to maintain the requested
+            // number of significant digits
+            self.units /= 10
+            self.power += 1
+        }
     }
 }
 
@@ -520,6 +528,32 @@ extension Decimal: LosslessStringConvertible {
     }
 }
 extension Decimal {
+    @inlinable func format<Notation>(
+        notation _: Notation.Type,
+        signed: Bool,
+    ) -> String where Notation: DynamicMagnitudeNotation {
+        if  self.units == 0 {
+            return "0"
+        }
+
+        let magnitude: Double = .log10(abs(Double.init(self.units))) + Double.init(self.power)
+        switch Notation[magnitude: magnitude] {
+        case nil:
+            return self.format(power: 0, signed: signed)
+
+        case (let exponent, nil)?:
+            guard exponent > 0 else {
+                let power: Int = -exponent
+                return self.format(power: power, signed: signed, suffix: "e\u{2212}\(power)")
+            }
+
+            return self.format(power: -exponent, signed: signed, suffix: "e\(exponent)")
+
+        case (let exponent, let suffix?)?:
+            return self.format(power: -exponent, signed: signed, suffix: suffix)
+        }
+    }
+
     public func format(stride: Int? = nil, places: Int, signed: Bool = false, suffix: String = "") -> String {
         self.format(stride: stride, places: places, signed: signed, suffix: suffix, ascii: false)
     }

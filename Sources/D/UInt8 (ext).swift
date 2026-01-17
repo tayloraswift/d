@@ -29,25 +29,25 @@ extension UInt8 {
         """
     ) @inlinable public postfix static func .. (
         self: Self
-    ) -> Decimal.NaturalPrecision<Units>.Postfix_ {
+    ) -> Decimal.Grouped<Units>.Natural.Postfix_ {
         .init(stride: self)
     }
 
     @inlinable public postfix static func % (
         self: Self
-    ) -> Decimal.NaturalPrecision<Percent>.Postfix_ {
+    ) -> Decimal.Grouped<Percent>.Natural.Postfix_ {
         .init(stride: self)
     }
 
     @inlinable public postfix static func ‰ (
         self: Self
-    ) -> Decimal.NaturalPrecision<Permille>.Postfix_ {
+    ) -> Decimal.Grouped<Permille>.Natural.Postfix_ {
         .init(stride: self)
     }
 
     @inlinable public postfix static func ‱ (
         self: Self
-    ) -> Decimal.NaturalPrecision<BasisPoints>.Postfix_ {
+    ) -> Decimal.Grouped<BasisPoints>.Natural.Postfix_ {
         .init(stride: self)
     }
 }
