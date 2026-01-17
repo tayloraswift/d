@@ -1,5 +1,5 @@
 extension Decimal.Grouped.Natural {
-    /// A syntactical intermediate for constructing a ``Decimal.NaturalPrecision`` format,
+    /// A syntactical intermediate for constructing a ``Decimal.Grouped.Natural`` format,
     /// necessary to work around precedence issues with the prefix `/` operator.
     @frozen public struct Postfix_ {
         @usableFromInline let stride: UInt8
