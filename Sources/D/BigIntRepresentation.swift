@@ -1,12 +1,12 @@
 @frozen public struct BigIntRepresentation<Value> where Value: BinaryInteger {
     public let value: Value
-    @usableFromInline let stride: UInt8?
+    @usableFromInline let format: BigIntFormat
     /// Whether to format the number with a leading plus sign, if positive.
     @usableFromInline var signed: Bool
 
-    @inlinable init(value: Value, stride: UInt8?, signed: Bool) {
+    @inlinable init(value: Value, format: BigIntFormat, signed: Bool) {
         self.value = value
-        self.stride = stride
+        self.format = format
         self.signed = signed
     }
 }
@@ -14,11 +14,11 @@ extension BigIntRepresentation {
     @inlinable public func map<T, E>(
         _ transform: (Value) throws(E) -> T
     ) throws(E) -> BigIntRepresentation<T> {
-        .init(value: try transform(self.value), stride: self.stride, signed: self.signed)
+        .init(value: try transform(self.value), format: self.format, signed: self.signed)
     }
 
     @inlinable public func with(value: Value) -> Self {
-        .init(value: value, stride: self.stride, signed: self.signed)
+        .init(value: value, format: self.format, signed: self.signed)
     }
 }
 extension BigIntRepresentation {
@@ -53,7 +53,7 @@ extension BigIntRepresentation: CustomStringConvertible {
         let splits: (count: Int, stride: Int)?
         let remainder: Int
 
-        if  let stride: UInt8 = self.stride, stride > 0 {
+        if  let stride: UInt8 = self.format.stride, stride > 0 {
             let stride: Int = .init(stride)
             let count: Int
 

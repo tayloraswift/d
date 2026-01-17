@@ -11,12 +11,24 @@ public protocol DecimalFormattable {
 extension DecimalFormattable {
     @inlinable public subscript<Format>(format: Format) -> DecimalRepresentation<Self, Format>
         where Format: DecimalFormat {
-        .init(value: self, stride: format.stride, places: format.places, signed: false)
+        .init(value: self, format: format, signed: false)
     }
 
-    @inlinable public subscript<Power>(
-        format: (Decimal.NaturalPrecision<Power>) -> ()
-    ) -> DecimalRepresentation<Self, Decimal.NaturalPrecision<Power>> where Power: DecimalPower {
-        .init(value: self, stride: nil, places: nil, signed: false)
+    @inlinable public subscript<E>(
+        format: (Decimal.Ungrouped<E>.Natural) -> ()
+    ) -> DecimalRepresentation<Self, Decimal.Ungrouped<E>.Natural> where E: DecimalPower {
+        .init(value: self, format: .init(), signed: false)
+    }
+}
+extension DecimalFormattable {
+    @available(
+        *, unavailable,
+        message: """
+        it looks like you accidentally put the power specifier before the precision specifier
+        """
+    ) @inlinable public subscript<E>(
+        format: Decimal.Grouped<E>.Natural.Postfix_
+    ) -> DecimalRepresentation<Self, Decimal.Ungrouped<E>.Natural> where E: DecimalPower {
+        fatalError()
     }
 }

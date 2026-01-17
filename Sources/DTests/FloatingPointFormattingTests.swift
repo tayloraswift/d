@@ -30,4 +30,17 @@ import Testing
         let d: Double = -0.9
         #expect("\(+d[..0])" == "−1")
     }
+
+    @Test(
+        arguments: [
+            (990, "990"),
+            (991, "990"),
+            // (999, "1.0\u{202F}k"),
+            (1_000, "1.0\u{202F}k"),
+            (1_500, "1.5\u{202F}k"),
+            (2_000, "2.0\u{202F}k"),
+        ]
+    ) static func FinancialNotation(_ value: Double, _ expected: String) {
+        #expect("\(value[..2][.financial])" == expected)
+    }
 }
