@@ -215,15 +215,16 @@ extension Decimal {
         // 2. Handle signs and use UInt64 for math to safely handle Int64.min
         let isNegative: Bool = (numerator < 0) != (denominator < 0)
 
-        let n: UInt64 = numerator == .min ?
-            UInt64(bitPattern: Int64.max) + 1 : UInt64(abs(numerator))
-        let d: UInt64 = denominator == .min ?
-            UInt64(bitPattern: Int64.max) + 1 : UInt64(abs(denominator))
+        let n: UInt64 = numerator == .min
+            ? UInt64(bitPattern: Int64.max) + 1
+            : UInt64(abs(numerator))
+        let d: UInt64 = denominator == .min
+            ? UInt64(bitPattern: Int64.max) + 1
+            : UInt64(abs(denominator))
 
         // 3-6. Perform core calculation (non-inlined)
         guard let (unroundedUnits, remainder, powerOfFirstDigit) =
-                Self.__calculateUnrounded(n: n, d: d, digits: digits)
-        else {
+        Self.__calculateUnrounded(n: n, d: d, digits: digits) else {
             // Result was non-zero but too small to represent
             self = .zero
             return
@@ -554,11 +555,28 @@ extension Decimal {
         }
     }
 
-    public func format(stride: Int? = nil, places: Int, signed: Bool = false, suffix: String = "") -> String {
-        self.format(stride: stride, places: places, signed: signed, suffix: suffix, ascii: false)
+    public func format(
+        stride: Int? = nil,
+        places: Int,
+        signed: Bool = false,
+        suffix: String = ""
+    ) -> String {
+        self.format(
+            stride: stride,
+            places: places,
+            signed: signed,
+            suffix: suffix,
+            ascii: false
+        )
     }
 
-    private func format(stride: Int?, places: Int, signed: Bool, suffix: String, ascii: Bool) -> String {
+    private func format(
+        stride: Int?,
+        places: Int,
+        signed: Bool,
+        suffix: String,
+        ascii: Bool
+    ) -> String {
         /// We test this before we perform any rounding, to preserve the sign.
         let negative: Bool = self.units < 0
         let positive: Bool = self.units > 0
