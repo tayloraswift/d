@@ -39,8 +39,7 @@ import Testing
         #expect(test.expected == Decimal.init(rounding: test.value, digits: test.digits))
     }
 
-    @Test
-    func InvalidInputs() {
+    @Test func InvalidInputs() {
         // Test infinite values
         #expect(nil == Decimal.init(rounding: .infinity, digits: 3))
         #expect(nil == Decimal.init(rounding: -.infinity, digits: 3))
