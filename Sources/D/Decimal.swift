@@ -9,8 +9,16 @@ import RealModule
         self.power = power
     }
 }
-
+extension Decimal: ExpressibleByIntegerLiteral {
+    @inlinable public init(integerLiteral: Int64) {
+        self.init(integerLiteral)
+    }
+}
 extension Decimal {
+    /// Creates a `Decimal` instance representing a whole number.
+    @inlinable public init(_ integer: Int64) {
+        self.init(units: integer, power: 0)
+    }
     /// Creates a `Decimal` instance from a ``Double``, rounding to the specified
     /// number of decimal places.
     ///
@@ -362,12 +370,6 @@ extension Decimal {
         }
 
         return (units, r, powerOfFirstDigit)
-    }
-}
-
-extension Decimal: ExpressibleByIntegerLiteral {
-    @inlinable public init(integerLiteral: Int64) {
-        self.init(units: integerLiteral, power: 0)
     }
 }
 
