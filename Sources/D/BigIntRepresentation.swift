@@ -1,24 +1,19 @@
 @frozen public struct BigIntRepresentation<Value> where Value: BinaryInteger {
-    public let value: Value
+    public var value: Value
+    public var prefix: NumericSignDisplay
     @usableFromInline let format: BigIntFormat
-    /// Whether to format the number with a leading plus sign, if positive.
-    @usableFromInline var signed: Bool
 
-    @inlinable init(value: Value, format: BigIntFormat, signed: Bool) {
+    @inlinable init(value: Value, prefix: NumericSignDisplay, format: BigIntFormat) {
         self.value = value
+        self.prefix = prefix
         self.format = format
-        self.signed = signed
     }
 }
 extension BigIntRepresentation {
     @inlinable public func map<T, E>(
         _ transform: (Value) throws(E) -> T
     ) throws(E) -> BigIntRepresentation<T> {
-        .init(value: try transform(self.value), format: self.format, signed: self.signed)
-    }
-
-    @inlinable public func with(value: Value) -> Self {
-        .init(value: value, format: self.format, signed: self.signed)
+        .init(value: try transform(self.value), prefix: self.prefix, format: self.format)
     }
 }
 extension BigIntRepresentation {
@@ -32,17 +27,14 @@ extension BigIntRepresentation {
         }
     }
 }
+extension BigIntRepresentation: CustomStringConvertible {
+    @inlinable public var description: String { self.bare }
+}
 extension BigIntRepresentation: NumericRepresentation {
     @inlinable public var zero: Bool { self.value == 0 }
     @inlinable public var sign: Bool? { self.zero ? nil : 0 < self.value }
 
-    @inlinable public prefix static func + (self: consuming Self) -> Self {
-        self.signed = true
-        return self
-    }
-}
-extension BigIntRepresentation: CustomStringConvertible {
-    public var description: String {
+    public var bare: String {
         let ungrouped: Substring = self.digits
         let positive: Bool = self.value > 0
         let negative: Bool = self.value < 0
@@ -70,7 +62,7 @@ extension BigIntRepresentation: CustomStringConvertible {
 
         if  negative {
             characters = digits + (splits?.count ?? 0) + 3
-        } else if self.signed, positive {
+        } else if case .plus = self.prefix, positive {
             characters = digits + (splits?.count ?? 0) + 1
         } else {
             characters = digits + (splits?.count ?? 0)
@@ -84,7 +76,7 @@ extension BigIntRepresentation: CustomStringConvertible {
                 $0[1] = 0x88
                 $0[2] = 0x92 // U+2212
                 i = 3
-            } else if self.signed, positive {
+            } else if case .plus = self.prefix, positive {
                 $0[0] = 0x2B // '+'
                 i = 1
             } else {

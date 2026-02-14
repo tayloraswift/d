@@ -59,7 +59,7 @@ extension Decimal {
 
         //  check for `Int64.min` to avoid a crash in ``abs``
         if  1 ... 18 ~= digits,
-            self.units == .min || abs(self.units) >= Self.power(Int64.init(digits)) {
+            self.units == .min || abs(self.units) >= Self[power: Int64.init(digits)] {
             // if the rounding caused the value to increase to the next order of magnitude
             // (e.g. 99 -> 100), we need to normalize one step to maintain the requested
             // number of significant digits
@@ -72,15 +72,7 @@ extension Decimal {
 extension Decimal {
     /// Normalizes the decimal by removing trailing zeros from the units.
     @inlinable public mutating func normalize() {
-        if  self.units == 0 {
-            self.power = 0
-            return
-        }
-
-        while case (let q, remainder: 0) = self.units.quotientAndRemainder(dividingBy: 10) {
-            self.units = q
-            self.power += 1
-        }
+        Self.normalize(units: &self.units, power: &self.power)
     }
 
     /// Returns a normalized copy of the decimal.
@@ -89,96 +81,11 @@ extension Decimal {
         return self
     }
 }
-
 extension Decimal: Equatable {
-    @inlinable public static func == (a: Self, b: Self) -> Bool {
-        if a.power == b.power {
-            return a.units == b.units
-        }
-        // To compare a and b, we treat them as fractions:
-        // a.units * 10^(+a.power) == b.units * 10^(+b.power)
-        // a.units / 10^(-a.power) == b.units / 10^(-b.power)
-        //
-        // By cross-multiplication, this is equivalent to:
-        // a.units * 10^(-b.power) == b.units * 10^(-a.power)
-        //
-        // To get the most out of this property, we want to scale both powers such that they are
-        // small but non-negative.
-        let offset: Int64 = max(a.power, b.power)
-        // Intuitively, after this transformation, one of the powers will be zero, and the other
-        // will be a non-negative integer. This optimizes our chances of getting two powers in
-        // the range of 0 through 18.
-        let power: (a: Int64, b: Int64) = (offset - a.power, offset - b.power)
-
-        // The power(_:) function is only defined for exponents up to 18.
-        // If either power is outside this range, we fall back to normalization.
-        if power.a <= 18, power.b <= 18 {
-            let x: (Int64, UInt64) = a.units.multipliedFullWidth(by: Self.power(power.b))
-            let y: (Int64, UInt64) = b.units.multipliedFullWidth(by: Self.power(power.a))
-            return x == y
-        } else {
-            let a: Decimal = a.normalized()
-            let b: Decimal = b.normalized()
-            return (a.units, a.power) == (b.units, b.power)
-        }
-    }
+    @inlinable public static func == (a: Self, b: Self) -> Bool { self.equals(a, b) }
 }
 extension Decimal: Comparable {
-    @inlinable public static func < (a: Self, b: Self) -> Bool {
-        let positive: Bool
-
-        switch (a.sign, b.sign) {
-        case (nil, nil):
-            // both are zero
-            return false
-
-        case (nil, let b?):
-            // if `a` is zero then `a < b` if and only if `b` is positive
-            return b
-
-        case (let a?, let b):
-            if case a? = b {
-                // both have the same sign
-                positive = a
-                break
-            }
-
-            // if `a` is positive then `b` must be zero or negative, so `a < b` is false.
-            // if `a` is negative then `b` must be zero or positive, so `a < b` is true.
-            return !a
-        }
-
-        // if powers are identical, just compare units
-        if  a.power == b.power {
-            return a.units < b.units
-        }
-
-        let offset: Int64 = max(a.power, b.power)
-        let power: (a: Int64, b: Int64) = (offset - a.power, offset - b.power)
-        if  power.a <= 18, power.b <= 18 {
-            let x: (Int64, UInt64) = a.units.multipliedFullWidth(by: Self.power(power.b))
-            let y: (Int64, UInt64) = b.units.multipliedFullWidth(by: Self.power(power.a))
-            return x < y
-        } else {
-            let a: Self = a.normalized()
-            let b: Self = b.normalized()
-
-            if  a.power == b.power {
-                return a.units < b.units
-            }
-
-            // if powers are still different, the magnitudes are different
-            // (we already know the signs are the same)
-            if  positive {
-                // a smaller (more negative) power means a smaller number
-                return a.power < b.power
-            } else {
-                // a larger (less negative) power means a smaller number
-                // e.g., -1e-2 (power -2) is LESS than -1e-5 (power -5)
-                return a.power > b.power
-            }
-        }
-    }
+    @inlinable public static func < (a: Self, b: Self) -> Bool { self.less(a, b) }
 }
 extension Decimal {
     /// Creates a `Decimal` from a fraction, rounding to the nearest value
@@ -263,7 +170,7 @@ extension Decimal {
         var finalPower: Int = powerOfFirstDigit - (digits - 1)
 
         // Check for rounding overflow (e.g., 9.99 (s=2) rounds to 10.0)
-        let powerOfTen: Int64 = Self.power(Int64(digits))
+        let powerOfTen: Int64 = Self[power: Int64.init(digits)]
 
         if truncatedUnits == powerOfTen {
             finalUnits = Int64(truncatedUnits / 10)
@@ -344,7 +251,7 @@ extension Decimal {
         if digitsGathered > targetDigits {
             let digitsToStrip: Int = digitsGathered - targetDigits
             // This will not overflow Int64 since digitsToStrip is at most 18
-            let divisor: UInt64 = UInt64(Self.power(Int64(digitsToStrip)))
+            let divisor: UInt64 = .init(Self[power: Int64.init(digitsToStrip)])
             let (newQ, newR): (UInt64, UInt64) = units.quotientAndRemainder(dividingBy: divisor)
 
             units = newQ
@@ -399,46 +306,9 @@ extension Decimal {
         if self.units == 0 {
             return (0, nil)
         } else if self.power >= 0 {
-            return (self.units * Self.power(self.power), nil)
+            return (self.units * Self[power: self.power], nil)
         } else {
-            return (self.units, Self.power(-self.power))
-        }
-    }
-
-    @inlinable static func power(_ exponent: Int64) -> Int64 {
-        switch exponent {
-        case 00: 1
-        case 01: 10
-        case 02: 100
-        case 03: 1000
-        case 04: 10000
-        case 05: 100000
-        case 06: 1000000
-        case 07: 10000000
-        case 08: 100000000
-        case 09: 1000000000
-        case 10: 10000000000
-        case 11: 100000000000
-        case 12: 1000000000000
-        case 13: 10000000000000
-        case 14: 100000000000000
-        case 15: 1000000000000000
-        case 16: 10000000000000000
-        case 17: 100000000000000000
-        case 18: 1000000000000000000
-        default: fatalError("Decimal power \(exponent) is not representable!")
-        }
-    }
-
-    /// Scale both decimals to a common power for addition or subtraction. The returned power
-    /// is the smaller of the two original powers.
-    @inlinable static func || (a: Self, b: Self) -> ((Int64, Int64), power: Int64) {
-        if a.power == b.power {
-            ((a.units, b.units), a.power)
-        } else if a.power < b.power {
-            ((a.units, b.units * Self.power(b.power - a.power)), a.power)
-        } else {
-            ((a.units * Self.power(a.power - b.power), b.units), b.power)
+            return (self.units, Self[power: -self.power])
         }
     }
 }
@@ -463,11 +333,44 @@ extension Decimal {
     @inlinable public static func -= (self: inout Self, other: Self) {
         self = self - other
     }
-}
 
+    @inlinable public static func * (a: Self, b: Int64) -> Self {
+        .init(units: a.units * b, power: a.power)
+    }
+    @inlinable public static func * (a: Int64, b: Self) -> Self { b * a }
+    @inlinable public static func *= (self: inout Self, factor: Int64) { self = self * factor }
+}
+extension Decimal: Numeric {
+    @inlinable public init?(exactly value: some BinaryInteger) {
+        guard let value: Int64 = .init(exactly: value) else {
+            return nil
+        }
+        self.init(value)
+    }
+
+    @inlinable public var magnitude: Magnitude {
+        .init(units: self.units.magnitude, power: self.power)
+    }
+
+    /// Decimal multiplication overflows rapidly, it should be used with caution.
+    @inlinable public static func * (a: Self, b: Self) -> Self {
+        .init(units: a.units * b.units, power: a.power + b.power)
+    }
+
+    @inlinable public static func *= (self: inout Self, factor: Self) {
+        self = self * factor
+    }
+}
+extension Decimal: SignedNumeric {
+    @inlinable public mutating func negate() {
+        self.units.negate()
+    }
+}
+extension Decimal: DecimalArithmetic {
+    @inlinable public var sign: Bool? { self.zero ? nil : 0 < self.units }
+}
 extension Decimal: DecimalFormattable {
     @inlinable public var zero: Bool { self.units == 0 }
-    @inlinable public var sign: Bool? { self.zero ? nil : 0 < self.units }
 
     @inlinable public func delta(to next: Self) -> (sign: Bool?, magnitude: Self) {
         let (units, power): ((Int64, Int64), Int64) = self || next
@@ -484,14 +387,14 @@ extension Decimal: DecimalFormattable {
         power: Int,
         stride: Int? = nil,
         places: Int? = nil,
-        signed: Bool = false,
+        prefix: NumericSignDisplay = .default,
         suffix: String = ""
     ) -> String {
         let shifted: Self = .init(units: self.units, power: self.power + Int64.init(power))
         return shifted.format(
             stride: stride,
             places: places ?? -Int.init(min(shifted.power, 0)),
-            signed: signed,
+            prefix: prefix,
             suffix: suffix
         )
     }
@@ -503,7 +406,7 @@ extension Decimal: CustomStringConvertible {
         self.format(
             stride: nil,
             places: -Int.init(min(self.power, 0)),
-            signed: false,
+            prefix: .default,
             suffix: "",
             ascii: true
         )
@@ -533,7 +436,7 @@ extension Decimal: LosslessStringConvertible {
 extension Decimal {
     @inlinable func format<Notation>(
         notation _: Notation.Type,
-        signed: Bool,
+        prefix: NumericSignDisplay,
     ) -> String where Notation: DynamicMagnitudeNotation {
         if  self.units == 0 {
             return "0"
@@ -542,31 +445,31 @@ extension Decimal {
         let magnitude: Double = .log10(abs(Double.init(self.units))) + Double.init(self.power)
         switch Notation[magnitude: magnitude] {
         case nil:
-            return self.format(power: 0, signed: signed)
+            return self.format(power: 0, prefix: prefix)
 
         case (let exponent, nil)?:
             guard exponent > 0 else {
                 let power: Int = -exponent
-                return self.format(power: power, signed: signed, suffix: "e\u{2212}\(power)")
+                return self.format(power: power, prefix: prefix, suffix: "e\u{2212}\(power)")
             }
 
-            return self.format(power: -exponent, signed: signed, suffix: "e\(exponent)")
+            return self.format(power: -exponent, prefix: prefix, suffix: "e\(exponent)")
 
         case (let exponent, let suffix?)?:
-            return self.format(power: -exponent, signed: signed, suffix: suffix)
+            return self.format(power: -exponent, prefix: prefix, suffix: suffix)
         }
     }
 
     public func format(
         stride: Int? = nil,
         places: Int,
-        signed: Bool = false,
+        prefix: NumericSignDisplay = .default,
         suffix: String = ""
     ) -> String {
         self.format(
             stride: stride,
             places: places,
-            signed: signed,
+            prefix: prefix,
             suffix: suffix,
             ascii: false
         )
@@ -575,7 +478,7 @@ extension Decimal {
     private func format(
         stride: Int?,
         places: Int,
-        signed: Bool,
+        prefix: NumericSignDisplay,
         suffix: String,
         ascii: Bool
     ) -> String {
@@ -646,7 +549,7 @@ extension Decimal {
             } else {
                 punctuation = places > 0 ? 4 : 3
             }
-        } else if signed, positive {
+        } else if case .plus = prefix, positive {
             punctuation = places > 0 ? 2 : 1
         } else {
             punctuation = places > 0 ? 1 : 0
@@ -665,7 +568,7 @@ extension Decimal {
                     $0[2] = 0x92 // U+2212
                     i = 3
                 }
-            } else if signed, positive {
+            } else if case .plus = prefix, positive {
                 $0[0] = 0x2B // '+'
                 i = 1
             } else {
@@ -760,7 +663,7 @@ extension Decimal {
 
     private mutating func strip(last places: Int64) {
         if places < 19 {
-            let powerOfTen: Int64 = Self.power(places)
+            let powerOfTen: Int64 = Self[power: places]
             let (q, r): (Int64, Int64) = self.units.quotientAndRemainder(
                 dividingBy: powerOfTen
             )
