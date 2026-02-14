@@ -7,8 +7,8 @@ import Testing
         #expect(a.format(places: 0) == "123")
         #expect(a.format(places: 2) == "123.00")
         #expect(a.format(places: 20) == "123.00000000000000000000")
-        #expect(a.format(places: 0, signed: true) == "+123")
-        #expect(a.format(places: 2, signed: true) == "+123.00")
+        #expect(a.format(places: 0, prefix: .plus) == "+123")
+        #expect(a.format(places: 2, prefix: .plus) == "+123.00")
 
         let b: Decimal = -456
         #expect(b.format(places: 0) == "−456")
@@ -49,8 +49,8 @@ import Testing
 
         // Round positive toward zero
         let c: Decimal = +1%
-        #expect(c.format(places: 1, signed: true) == "+0.0")
-        #expect(c.format(places: 0, signed: true) == "+0")
+        #expect(c.format(places: 1, prefix: .plus) == "+0.0")
+        #expect(c.format(places: 0, prefix: .plus) == "+0")
 
         // Round negative toward zero
         let d: Decimal = -1%
@@ -151,14 +151,14 @@ import Testing
         let a: Decimal = 0
         #expect(a.format(places: 0) == "0")
         #expect(a.format(places: 4) == "0.0000")
-        #expect(a.format(places: 2, signed: true) == "0.00")
-        #expect(a.format(places: 0, signed: true) == "0")
+        #expect(a.format(places: 2, prefix: .plus) == "0.00")
+        #expect(a.format(places: 0, prefix: .plus) == "0")
 
         let b: Decimal = .init(units: 0, power: 9999)
         #expect(b.format(places: 0) == "0")
         #expect(b.format(places: 2) == "0.00")
-        #expect(b.format(places: 0, signed: true) == "0")
-        #expect(b.format(places: 2, signed: true) == "0.00")
+        #expect(b.format(places: 0, prefix: .plus) == "0")
+        #expect(b.format(places: 2, prefix: .plus) == "0.00")
 
         let c: Decimal = .init(units: 0, power: -99)
         #expect(c.format(places: 0) == "0")
@@ -169,25 +169,28 @@ import Testing
 
     @Test static func WithPlusSign() {
         let a: Decimal = 123
-        #expect(a.format(places: 0, signed: true) == "+123")
+        #expect(a.format(places: 0, prefix: .plus) == "+123")
 
         let b: Decimal = -456
-        #expect(b.format(places: 0, signed: true) == "−456")
+        #expect(b.format(places: 0, prefix: .plus) == "−456")
 
         let c: Decimal = 0
-        #expect(c.format(places: 0, signed: true) == "0")
+        #expect(c.format(places: 0, prefix: .plus) == "0")
 
         let d: Decimal = .init(units: 45, power: 20)
-        #expect(d.format(places: 0, signed: true) == "+4500000000000000000000")
-        #expect(d.format(places: 2, signed: true) == "+4500000000000000000000.00")
+        #expect(d.format(places: 0, prefix: .plus) == "+4500000000000000000000")
+        #expect(d.format(places: 2, prefix: .plus) == "+4500000000000000000000.00")
         #expect(
-            d.format(places: 20, signed: true) == "+4500000000000000000000.00000000000000000000"
+            d.format(
+                places: 20,
+                prefix: .plus
+            ) == "+4500000000000000000000.00000000000000000000"
         )
 
         let e: Decimal = 12345‱
-        #expect(e.format(places: 2, signed: true) == "+1.23")
-        #expect(e.format(places: 4, signed: true) == "+1.2345")
-        #expect(e.format(places: 20, signed: true) == "+1.23450000000000000000")
+        #expect(e.format(places: 2, prefix: .plus) == "+1.23")
+        #expect(e.format(places: 4, prefix: .plus) == "+1.2345")
+        #expect(e.format(places: 20, prefix: .plus) == "+1.23450000000000000000")
     }
 
     @Test static func DSL() {

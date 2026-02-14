@@ -8,14 +8,15 @@ extension Double {
     }
 }
 extension Double {
-    @usableFromInline func fallback(signed: Bool, suffix: String = "") -> String {
-        if  self > 0 {
-            signed ? "+\(self)\(suffix)" : "\(self)\(suffix)"
-        } else if
-            self < 0 {
+    @usableFromInline func fallback(prefix: NumericSignDisplay, suffix: String = "") -> String {
+        if self < 0 {
             "\u{2212}\(-self)\(suffix)"
-        } else {
+        } else if self == 0 {
             "0\(suffix)"
+        } else if case .plus = prefix {
+            "+\(self)\(suffix)"
+        } else {
+            "\(self)\(suffix)"
         }
     }
 }
@@ -37,17 +38,17 @@ extension Double: DecimalFormattable {
         power: Int,
         stride: Int?,
         places: Int?,
-        signed: Bool,
+        prefix: NumericSignDisplay,
         suffix: String = ""
     ) -> String {
         guard
         let places: Int,
         let decimal: Decimal = .init(rounding: self, places: power + places) else {
             let value: Double = self * .pow(10.0, Double(power))
-            return value.fallback(signed: signed, suffix: suffix)
+            return value.fallback(prefix: prefix, suffix: suffix)
         }
 
-        if  signed, decimal.units == 0,
+        if  case .plus = prefix, decimal.units == 0,
             let sign: Bool = self.sign {
             // special case to ensure sign is shown for zero when requested
             return places > 0 ? """
@@ -60,7 +61,7 @@ extension Double: DecimalFormattable {
                 power: power,
                 stride: stride,
                 places: places,
-                signed: signed,
+                prefix: prefix,
                 suffix: suffix
             )
         }
@@ -69,22 +70,22 @@ extension Double: DecimalFormattable {
 extension Double {
     @inlinable func format<Notation>(
         notation _: Notation.Type,
-        signed: Bool,
+        prefix: NumericSignDisplay,
         digits: Int
     ) -> String where Notation: DynamicMagnitudeNotation {
         guard
         let decimal: Decimal = .init(rounding: self, digits: digits) else {
-            return self.fallback(signed: signed)
+            return self.fallback(prefix: prefix)
         }
 
-        if  signed, decimal.units == 0,
+        if  case .plus = prefix, decimal.units == 0,
             let sign: Bool = self.sign {
             // special case to ensure sign is shown for zero when requested
             return """
             \(sign ? "+" : "\u{2212}")0
             """
         } else {
-            return decimal.format(notation: Notation.self, signed: signed)
+            return decimal.format(notation: Notation.self, prefix: prefix)
         }
     }
 }
