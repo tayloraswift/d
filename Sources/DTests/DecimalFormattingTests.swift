@@ -181,7 +181,10 @@ import Testing
         #expect(d.format(places: 0, prefix: .plus) == "+4500000000000000000000")
         #expect(d.format(places: 2, prefix: .plus) == "+4500000000000000000000.00")
         #expect(
-            d.format(places: 20, prefix: .plus) == "+4500000000000000000000.00000000000000000000"
+            d.format(
+                places: 20,
+                prefix: .plus
+            ) == "+4500000000000000000000.00000000000000000000"
         )
 
         let e: Decimal = 12345‱
