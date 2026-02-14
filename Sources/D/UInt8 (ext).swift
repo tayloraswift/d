@@ -20,14 +20,7 @@ extension UInt8 {
     }
 }
 extension UInt8 {
-    @available(
-        *,
-        deprecated,
-        message: """
-        natural precision decimal formatting with digit grouping is better expressed as a \
-        plain 'BigIntFormat' without the trailing '..' operator
-        """
-    ) @inlinable public postfix static func .. (
+    @inlinable public postfix static func .. (
         self: Self
     ) -> Decimal.Grouped<Units>.Natural.Postfix_ {
         .init(stride: self)
