@@ -6,7 +6,10 @@
     var sign: Bool? { get }
 }
 extension DecimalArithmetic {
-    @inline(always) @inlinable static func normalize(
+    #if compiler(>=6.3)
+    @inline(always)
+    #endif
+    @inlinable static func normalize(
         units: inout Units,
         power: inout Int64
     ) {
@@ -22,7 +25,10 @@ extension DecimalArithmetic {
     }
 }
 extension DecimalArithmetic {
-    @inline(always) @inlinable static subscript(power power: Int64) -> Units {
+    #if compiler(>=6.3)
+    @inline(always)
+    #endif
+    @inlinable static subscript(power power: Int64) -> Units {
         switch power {
         case 00: 1
         case 01: 10
@@ -49,7 +55,10 @@ extension DecimalArithmetic {
 
     /// Scale both decimals to a common power for addition or subtraction. The returned power
     /// is the smaller of the two original powers.
-    @inline(always) @inlinable static func || (
+    #if compiler(>=6.3)
+    @inline(always)
+    #endif
+    @inlinable static func || (
         a: Self,
         b: Self
     ) -> ((Units, Units), power: Int64) {
@@ -62,7 +71,10 @@ extension DecimalArithmetic {
         }
     }
 
-    @inline(always) @inlinable static func equals(_ a: Self, _ b: Self) -> Bool {
+    #if compiler(>=6.3)
+    @inline(always)
+    #endif
+    @inlinable static func equals(_ a: Self, _ b: Self) -> Bool {
         if a.power == b.power {
             return a.units == b.units
         }
@@ -98,7 +110,10 @@ extension DecimalArithmetic {
         }
     }
 
-    @inline(always) @inlinable public static func less(_ a: Self, _ b: Self) -> Bool {
+    #if compiler(>=6.3)
+    @inline(always)
+    #endif
+    @inlinable public static func less(_ a: Self, _ b: Self) -> Bool {
         let positive: Bool
 
         switch (a.sign, b.sign) {
