@@ -9,7 +9,7 @@ let package: Package = .init(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-numerics", from: "1.0.3"),
-        .package(url: "https://github.com/ordo-one/dollup", from: "1.0.0"),
+        .package(url: "https://github.com/ordo-one/dollup", from: "1.0.1"),
     ],
     targets: [
         .target(
