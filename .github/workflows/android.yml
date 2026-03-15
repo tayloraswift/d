@@ -11,7 +11,7 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             -   name: Checkout repository
-                uses: actions/checkout@v3
+                uses: actions/checkout@v6
 
             -   name: Free disk space
                 run: sudo rm -rf /opt/microsoft /opt/google /opt/az /opt/ghc /usr/share/dotnet /usr/local/share/boost /opt/hostedtoolcache /usr/local/share/chromium
