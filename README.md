@@ -11,7 +11,7 @@ D is Foundation-free, and can also serve as a lightweight `Double` formatting en
 
 ## Requirements
 
-The D library requires Swift 6.1 or later.
+The D library requires Swift 6.2 or later.
 
 
 | Platform | Status |
