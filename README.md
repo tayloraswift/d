@@ -1,29 +1,23 @@
-[![Tests](https://github.com/tayloraswift/d/actions/workflows/Tests.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/Tests.yml)
-[![Documentation](https://github.com/tayloraswift/d/actions/workflows/Documentation.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/Documentation.yml)
+<div align="center">
 
-D is a pure Swift decimal arithmetic library and formatting DSL.
+⌛ &nbsp; **d** &nbsp; ⏳
 
-D is Foundation-free, and can also serve as a lightweight `Double` formatting engine for applications that don’t need decimal functionality, but still have strong reasons to avoid linking Foundation, such as WebAssembly applications.
+a pure Swift decimal arithmetic library and formatting DSL
 
 [documentation](https://swiftinit.org/docs/d) ·
 [license](LICENSE)
 
+</div>
+
 
 ## Requirements
 
+D is Foundation-free, and can also serve as a lightweight `Double` formatting engine for applications that don’t need decimal functionality, but still have strong reasons to avoid linking Foundation, such as WebAssembly applications.
+
 The D library requires Swift 6.2 or later.
 
-
-| Platform | Status |
-| -------- | ------ |
-| 🐧 Linux | [![Tests](https://github.com/tayloraswift/d/actions/workflows/Tests.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/Tests.yml) |
-| 🤖 Android | [![Tests](https://github.com/tayloraswift/d/actions/workflows/android.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/android.yml) |
-| 🍏 Darwin | [![Tests](https://github.com/tayloraswift/d/actions/workflows/Tests.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/Tests.yml) |
-| 🍏 Darwin (iOS) | [![iOS](https://github.com/tayloraswift/d/actions/workflows/iOS.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/iOS.yml) |
-| 🍏 Darwin (tvOS) | [![tvOS](https://github.com/tayloraswift/d/actions/workflows/tvOS.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/tvOS.yml) |
-| 🍏 Darwin (visionOS) | [![visionOS](https://github.com/tayloraswift/d/actions/workflows/visionOS.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/visionOS.yml) |
-| 🍏 Darwin (watchOS) | [![watchOS](https://github.com/tayloraswift/d/actions/workflows/watchOS.yml/badge.svg)](https://github.com/tayloraswift/d/actions/workflows/watchOS.yml) |
-
+<!-- DO NOT EDIT BELOW! AUTOSYNC CONTENT [STATUS TABLE] -->
+<!-- DO NOT EDIT ABOVE! AUTOSYNC CONTENT [STATUS TABLE] -->
 
 [Check deployment minimums](https://swiftinit.org/docs/d#ss:platform-requirements)
 
