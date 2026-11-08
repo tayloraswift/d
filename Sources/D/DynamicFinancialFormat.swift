@@ -3,7 +3,7 @@
     @inlinable public static subscript(
         magnitude magnitude: Double
     ) -> (exponent: Int, suffix: String?)? {
-        if  -3 ..< 3 ~= magnitude {
+        if -3 ..< 3 ~= magnitude {
             return nil
         }
 
