@@ -138,8 +138,11 @@ extension Decimal {
             : UInt64(abs(denominator))
 
         // 3-6. Perform core calculation (non-inlined)
-        guard let (unroundedUnits, remainder, powerOfFirstDigit) =
-        Self.__calculateUnrounded(n: n, d: d, digits: digits) else {
+        guard let (unroundedUnits, remainder, powerOfFirstDigit) = Self.__calculateUnrounded(
+            n: n,
+            d: d,
+            digits: digits
+        ) else {
             // Result was non-zero but too small to represent
             self = .zero
             return
