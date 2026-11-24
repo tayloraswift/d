@@ -130,7 +130,7 @@ print("Forced sign: \(+integer[/3])") // "+1,234,567,890"
 
 ### Zero elision
 
-The library provides two special prefix operators to handle cases where zero values should not be displayed.
+The library provides three special prefix operators to handle cases where zero values should not be displayed.
 
 The `+?` prefix operator returns a signed string representation of the number, or nil if the number is zero.
 
@@ -140,6 +140,13 @@ let nonzero: Decimal = 55%
 
 print(+?zero[..] as Any) // nil
 print(+?nonzero[..] as Any) // "+0.55"
+```
+
+The `-?` prefix operator negates a signed number and returns a signed string representation, or nil if the number is zero.
+
+```swift
+print(-?zero[..] as Any) // nil
+print(-?nonzero[..] as Any) // "−0.55"
 ```
 
 The `??` prefix operator returns a standard string representation of the number, or nil if the number is zero.
