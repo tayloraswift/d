@@ -28,8 +28,8 @@ extension NumericRepresentation where Value: SignedNumeric {
         self.value = -self.value
         return self
     }
-    @inlinable public prefix static func -? (self: consuming Self) -> Self {
-        self.zero ? self : -self
+    @inlinable public prefix static func -? (self: consuming Self) -> Self? {
+        self.zero ? nil : -self
     }
 }
 extension NumericRepresentation {
